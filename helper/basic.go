@@ -1,0 +1,13 @@
+package helper
+
+import "github.com/go-playground/validator/v10"
+
+type M map[string]interface{}
+
+type CustomValidator struct {
+	Validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.Validator.Struct(i)
+}
