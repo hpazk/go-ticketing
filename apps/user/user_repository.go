@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type userRepository interface {
+type repository interface {
 	Store(user User) (User, error)
 	Fetch() ([]User, error)
 	Update(user User) (User, error)
@@ -13,16 +13,16 @@ type userRepository interface {
 	// Delete(id uint) error
 }
 
-type repository struct {
+type repo struct {
 	db *gorm.DB
 }
 
-func UserRepository(db *gorm.DB) *repository {
-	return &repository{db}
+func UserRepository(db *gorm.DB) *repo {
+	return &repo{db}
 }
 
 // Save New User
-func (r *repository) Store(user User) (User, error) {
+func (r *repo) Store(user User) (User, error) {
 	err := r.db.Create(&user).Error
 	if err != nil {
 		return user, err
@@ -32,7 +32,7 @@ func (r *repository) Store(user User) (User, error) {
 }
 
 // Get All Users
-func (r *repository) Fetch() ([]User, error) {
+func (r *repo) Fetch() ([]User, error) {
 	var users []User
 	err := r.db.Find(&users).Error
 	if err != nil {
@@ -43,7 +43,7 @@ func (r *repository) Fetch() ([]User, error) {
 }
 
 // Get User by Id
-func (r *repository) FindById(id uint) (User, error) {
+func (r *repo) FindById(id uint) (User, error) {
 	var user User
 
 	err := r.db.First(&user, "id = ?", id).Error
@@ -55,7 +55,7 @@ func (r *repository) FindById(id uint) (User, error) {
 }
 
 // Get User By Email
-func (r *repository) FindByEmail(email string) (User, error) {
+func (r *repo) FindByEmail(email string) (User, error) {
 	var user User
 
 	err := r.db.First(&user, "email = ?", email).Error
@@ -67,7 +67,7 @@ func (r *repository) FindByEmail(email string) (User, error) {
 }
 
 // Update user
-func (r *repository) Update(user User) (User, error) {
+func (r *repo) Update(user User) (User, error) {
 	err := r.db.Save(&user).Error
 	if err != nil {
 		return user, err
@@ -77,7 +77,7 @@ func (r *repository) Update(user User) (User, error) {
 }
 
 // // Delete User
-// func (r *repository) Delete(id uint) error {
+// func (r *repo) Delete(id uint) error {
 // 	usersStorage[id-1] = usersStorage[len(usersStorage)-1]
 // 	usersStorage[uint(len(usersStorage))-1] = User{}
 // 	usersStorage = usersStorage[:uint(len(usersStorage))-1]

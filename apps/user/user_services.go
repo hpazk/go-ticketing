@@ -19,11 +19,11 @@ type UserServices interface {
 }
 
 type services struct {
-	repository userRepository
+	repo repository
 }
 
-func UserService(repository userRepository) *services {
-	return &services{repository}
+func UserService(repo repository) *services {
+	return &services{repo}
 }
 
 func (s *services) signUp(req *request) (User, error) {
@@ -43,7 +43,7 @@ func (s *services) signUp(req *request) (User, error) {
 
 	userReg.Password = string(hashedPassword)
 
-	newUser, err := s.repository.Store(userReg)
+	newUser, err := s.repo.Store(userReg)
 	if err != nil {
 		return newUser, err
 	}
@@ -56,7 +56,7 @@ func (s *services) signIn(req *loginRequest) (User, error) {
 	email := req.Email
 	password := req.Password
 
-	user, err := s.repository.FindByEmail(email)
+	user, err := s.repo.FindByEmail(email)
 	if err != nil {
 		return user, err
 	}
@@ -70,7 +70,7 @@ func (s *services) signIn(req *loginRequest) (User, error) {
 
 }
 func (s *services) CheckExistEmail(email string) bool {
-	if _, err := s.repository.FindByEmail(email); err != nil {
+	if _, err := s.repo.FindByEmail(email); err != nil {
 		return false
 	}
 
@@ -80,7 +80,7 @@ func (s *services) CheckExistEmail(email string) bool {
 // // TODO error-handling
 // func (s *services) FetchUsers() ([]User, error) {
 // 	var users []User
-// 	users, err := s.repository.Fetch()
+// 	users, err := s.repo.Fetch()
 // 	if err != nil {
 // 		return users, err
 // 	}
@@ -91,7 +91,7 @@ func (s *services) CheckExistEmail(email string) bool {
 // TODO error-handling
 func (s *services) FetchUserById(id uint) (User, error) {
 	var user User
-	user, err := s.repository.FindById(id)
+	user, err := s.repo.FindById(id)
 	if err != nil {
 		return user, err
 	}
@@ -101,7 +101,7 @@ func (s *services) FetchUserById(id uint) (User, error) {
 
 // func (s *services) FetchUserByEmail(email string) (User, error) {
 // 	var user User
-// 	user, err := s.repository.FindByEmail(email)
+// 	user, err := s.repo.FindByEmail(email)
 // 	if err != nil {
 // 		return user, err
 // 	}
@@ -120,7 +120,7 @@ func (s *services) FetchUserById(id uint) (User, error) {
 // 	userReg.CreatedAt = time.Now()
 // 	userReg.UpdatedAt = time.Now()
 
-// 	editedUser, err := s.repository.Update(userReg)
+// 	editedUser, err := s.repo.Update(userReg)
 // 	if err != nil {
 // 		return editedUser, err
 // 	}
@@ -129,7 +129,7 @@ func (s *services) FetchUserById(id uint) (User, error) {
 // }
 
 // func (s *services) DeleteUser(id uint) error {
-// 	if err := s.repository.Delete(id); err != nil {
+// 	if err := s.repo.Delete(id); err != nil {
 // 		return err
 // 	}
 
