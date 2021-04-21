@@ -1,12 +1,13 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/hpazk/go-booklib/apps/user"
-	"github.com/jinzhu/gorm"
-	"gopkg.in/gormigrate.v1"
+	"gorm.io/gorm"
 )
 
 func GetMigrations(db *gorm.DB) *gormigrate.Gormigrate {
@@ -14,8 +15,9 @@ func GetMigrations(db *gorm.DB) *gormigrate.Gormigrate {
 		{
 			ID: fmt.Sprintf("%d", time.Now().Unix()),
 			Migrate: func(tx *gorm.DB) error {
-				if err := tx.AutoMigrate(&user.User{}).Error; err != nil {
-					return err
+				err := tx.AutoMigrate(&user.User{}).Error
+				if err != nil {
+					return errors.New("Migration failed")
 				}
 				return nil
 			},

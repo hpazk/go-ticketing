@@ -3,8 +3,8 @@ package user
 import (
 	"github.com/hpazk/go-booklib/auth"
 	"github.com/hpazk/go-booklib/helper"
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type UserApp struct {
@@ -18,7 +18,7 @@ func InitApp(db *gorm.DB) *UserApp {
 var handler *userHandler
 
 func (r *UserApp) UseApp() {
-	repository := UserRepository(r.Db)
+	repository := userRepository(r.Db)
 	userservice := UserService(repository)
 	authService := auth.AuthService()
 

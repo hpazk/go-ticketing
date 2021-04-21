@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type DbConnection struct {
@@ -41,7 +41,7 @@ func GetDbInstance() *gorm.DB {
 		dbConfig.Port,
 	)
 
-	db, err := gorm.Open("postgres", dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("connection failed")
 	}

@@ -2,7 +2,7 @@ package transaction
 
 import (
 	"github.com/hpazk/go-booklib/apps/event"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Transaction struct {

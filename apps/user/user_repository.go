@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type repository interface {
@@ -17,7 +17,7 @@ type repo struct {
 	db *gorm.DB
 }
 
-func UserRepository(db *gorm.DB) *repo {
+func userRepository(db *gorm.DB) *repo {
 	return &repo{db}
 }
 

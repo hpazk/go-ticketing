@@ -1,6 +1,10 @@
 package user
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // Request
 type request struct {
@@ -18,15 +22,15 @@ type loginRequest struct {
 
 // Response
 type response struct {
-	ID        uint       `json:"id"`
-	Username  string     `json:"username"`
-	Fullname  string     `json:"fullname"`
-	Email     string     `json:"email"`
-	Role      string     `json:"role"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at"`
-	AuthToken string     `json:"auth_token"`
+	ID        uint           `json:"id"`
+	Username  string         `json:"username"`
+	Fullname  string         `json:"fullname"`
+	Email     string         `json:"email"`
+	Role      string         `json:"role"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	AuthToken string         `json:"auth_token"`
 }
 
 type loginResponse struct {

@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/hpazk/go-booklib/apps/event"
 	"github.com/hpazk/go-booklib/apps/transaction"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // User Entity
