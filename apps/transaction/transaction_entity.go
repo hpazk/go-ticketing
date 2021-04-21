@@ -10,6 +10,7 @@ type Transaction struct {
 	ParticipantID uint
 	CreatorID     int
 	EventID       int
+	StatusPayment string
 	Amount        float64
 	Event         []event.Event
 }
