@@ -10,7 +10,7 @@ type repository interface {
 	Update(user User) (User, error)
 	FindById(id uint) (User, error)
 	FindByEmail(email string) (User, error)
-	// Delete(id uint) error
+	Delete(id uint) error
 }
 
 type repo struct {
@@ -76,10 +76,13 @@ func (r *repo) Update(user User) (User, error) {
 	return user, nil
 }
 
-// // Delete User
-// func (r *repo) Delete(id uint) error {
-// 	usersStorage[id-1] = usersStorage[len(usersStorage)-1]
-// 	usersStorage[uint(len(usersStorage))-1] = User{}
-// 	usersStorage = usersStorage[:uint(len(usersStorage))-1]
-// 	return nil
-// }
+// Delete User
+func (r *repo) Delete(id uint) error {
+	var user User
+	err := r.db.Where("id = ?", id).Delete(&user).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
