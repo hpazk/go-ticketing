@@ -42,7 +42,7 @@ func (a *App) Route() []helper.Route {
 		},
 		{
 			Method:  echo.GET,
-			Path:    "/events",
+			Path:    "/events/:id",
 			Handler: handlers.GetEvent,
 			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 

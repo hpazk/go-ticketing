@@ -1,16 +1,14 @@
 package transaction
 
 import (
-	"github.com/hpazk/go-booklib/apps/event"
 	"gorm.io/gorm"
 )
 
 type Transaction struct {
 	gorm.Model
 	ParticipantID uint
-	CreatorID     int
+	CreatorID     uint
 	EventID       int
-	StatusPayment string
+	StatusPayment string `gorm:"type:enum('passed', 'failed');''"`
 	Amount        float64
-	Event         []event.Event
 }

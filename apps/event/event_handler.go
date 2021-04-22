@@ -22,7 +22,9 @@ func (h *handler) PostEvent(c echo.Context) error {
 }
 
 func (h *handler) GetEvents(c echo.Context) error {
-	return c.JSON(http.StatusOK, helper.M{"message": "get-events"})
+	events, _ := h.services.FetchEvents()
+	response := events
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *handler) GetEvent(c echo.Context) error {

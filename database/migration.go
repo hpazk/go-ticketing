@@ -2,10 +2,10 @@ package database
 
 import (
 	"errors"
-	"fmt"
-	"time"
 
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/hpazk/go-booklib/apps/event"
+	"github.com/hpazk/go-booklib/apps/transaction"
 	"github.com/hpazk/go-booklib/apps/user"
 	"gorm.io/gorm"
 )
@@ -13,10 +13,16 @@ import (
 func GetMigrations(db *gorm.DB) *gormigrate.Gormigrate {
 	return gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: fmt.Sprintf("%d", time.Now().Unix()),
+			// ID: fmt.Sprintf("%d", time.Now().Unix()),
+			ID: "1618983623",
 			Migrate: func(tx *gorm.DB) error {
-				err := tx.AutoMigrate(&user.User{}).Error
-				if err != nil {
+				if err := tx.AutoMigrate(&user.User{}).Error; err != nil {
+					return errors.New("Migration failed")
+				}
+				if err := tx.AutoMigrate(&event.Event{}).Error; err != nil {
+					return errors.New("Migration failed")
+				}
+				if err := tx.AutoMigrate(&transaction.Transaction{}).Error; err != nil {
 					return errors.New("Migration failed")
 				}
 				return nil

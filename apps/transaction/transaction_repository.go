@@ -1,6 +1,8 @@
 package transaction
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type repository interface {
 	Store(tsx Transaction) (Transaction, error)
@@ -8,6 +10,7 @@ type repository interface {
 	FindById(id uint) (Transaction, error)
 	Update(tsx Transaction) (Transaction, error)
 	Delete(id uint) error
+	// GetByEventID(eventID uint) ([]Transaction, error)
 }
 
 type repo struct {

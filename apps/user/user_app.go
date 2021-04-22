@@ -7,25 +7,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserApp struct {
+type App struct {
 	Db *gorm.DB
 }
 
-func InitApp(db *gorm.DB) *UserApp {
-	return &UserApp{db}
+func Init(db *gorm.DB) *App {
+	return &App{db}
 }
 
 var handler *userHandler
 
-func (r *UserApp) UseApp() {
-	repository := userRepository(r.Db)
+func (a *App) UseApp() {
+	repository := userRepository(a.Db)
 	userservice := UserService(repository)
 	authService := auth.AuthService()
 
 	handler = UserHandler(userservice, authService)
 }
 
-func (r *UserApp) Route() []helper.Route {
+func (a *App) Route() []helper.Route {
 
 	// TODO jwt: OK
 	// TODO jwt: custom-error
