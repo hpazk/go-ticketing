@@ -88,7 +88,6 @@ func (s *services) CheckExistEmail(email string) bool {
 // 	return users, nil
 // }
 
-// TODO error-handling
 func (s *services) FetchUserById(id uint) (User, error) {
 	var user User
 	user, err := s.repo.FindById(id)

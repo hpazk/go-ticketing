@@ -60,5 +60,11 @@ func (a *App) Route() []helper.Route {
 			Handler: handlers.DeleteTransaction,
 			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
+		{
+			Method:  echo.GET,
+			Path:    "/transactions/event/:id",
+			Handler: handlers.GetTransactionsByEvent,
+			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
+		},
 	}
 }

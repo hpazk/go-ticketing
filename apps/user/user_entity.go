@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/hpazk/go-booklib/apps/event"
 	"github.com/hpazk/go-booklib/apps/transaction"
+
 	"gorm.io/gorm"
 )
 

@@ -1,6 +1,8 @@
 package transaction
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -10,7 +12,7 @@ type repository interface {
 	FindById(id uint) (Transaction, error)
 	Update(tsx Transaction) (Transaction, error)
 	Delete(id uint) error
-	// GetByEventID(eventID uint) ([]Transaction, error)
+	FindByEventID(eventID uint) ([]Transaction, error)
 }
 
 type repo struct {
@@ -66,4 +68,16 @@ func (r *repo) Delete(id uint) error {
 		return err
 	}
 	return nil
+}
+
+// Event - Transaction
+func (r *repo) FindByEventID(eventID uint) ([]Transaction, error) {
+	var tsxs []Transaction
+
+	err := r.db.Where("event_id = ?", eventID).Find(&tsxs).Error
+	if err != nil {
+		return tsxs, err
+	}
+	fmt.Println(tsxs[0])
+	return tsxs, nil
 }

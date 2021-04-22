@@ -6,6 +6,7 @@ type Services interface {
 	FetchTransaction(id uint) (Transaction, error)
 	EditTransaction(id uint) (Transaction, error)
 	RemoveTransaction(id uint) error
+	FetchTransactionsByEvent(id uint) ([]Transaction, error)
 }
 
 type services struct {
@@ -23,6 +24,7 @@ func (s *services) SaveTransaction(req *request) (Transaction, error) {
 
 func (s *services) FetchTransactions() ([]Transaction, error) {
 	var tsx []Transaction
+
 	return tsx, nil
 }
 
@@ -38,4 +40,11 @@ func (s *services) EditTransaction(id uint) (Transaction, error) {
 
 func (s *services) RemoveTransaction(id uint) error {
 	return nil
+}
+
+// Transaction - Event
+func (s *services) FetchTransactionsByEvent(id uint) ([]Transaction, error) {
+	tsxs, _ := s.repo.FindByEventID(id)
+
+	return tsxs, nil
 }
