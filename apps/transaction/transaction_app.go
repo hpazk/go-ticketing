@@ -42,7 +42,7 @@ func (a *App) Route() []helper.Route {
 		},
 		{
 			Method:  echo.GET,
-			Path:    "/transactions",
+			Path:    "/transactions/:id",
 			Handler: handlers.GetTransaction,
 			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 

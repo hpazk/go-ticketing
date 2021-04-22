@@ -1,11 +1,14 @@
 package transaction
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/hpazk/go-booklib/auth"
+	"github.com/hpazk/go-booklib/cache"
 	"github.com/hpazk/go-booklib/helper"
 	"github.com/labstack/echo/v4"
 )
@@ -24,7 +27,18 @@ func (h *handler) PostTransaction(c echo.Context) error {
 }
 
 func (h *handler) GetTransactions(c echo.Context) error {
-	return c.JSON(http.StatusOK, helper.M{"message": "get-transactions"})
+	rd := cache.GetRedisInstance()
+	tsxs, _ := h.services.FetchTransactions()
+
+	tsxsFormed := tsxsFormatter(tsxs)
+	tsxsJson, _ := json.Marshal(tsxsFormed)
+
+	jsonString := string(tsxsJson)
+	fmt.Println(jsonString)
+
+	rd.Set("tsx", jsonString, time.Hour*1)
+
+	return c.JSON(http.StatusOK, tsxs)
 }
 
 func (h *handler) GetTransaction(c echo.Context) error {
@@ -45,5 +59,13 @@ func (h *handler) GetTransactionsByEvent(c echo.Context) error {
 	fmt.Println(paramEventID)
 	eventId, _ = strconv.Atoi(paramEventID)
 	tsxs, _ := h.services.FetchTransactionsByEvent(uint(eventId))
-	return c.JSON(http.StatusOK, tsxs)
+	fmt.Println(tsxs)
+
+	var transactions []Transaction
+	rd := cache.GetRedisInstance()
+	tsxsJson, _ := rd.Get("tsx").Result()
+	if err := json.Unmarshal([]byte(tsxsJson), &transactions); err != nil {
+		panic(err)
+	}
+	return c.JSON(http.StatusOK, transactions)
 }

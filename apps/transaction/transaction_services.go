@@ -23,9 +23,8 @@ func (s *services) SaveTransaction(req *request) (Transaction, error) {
 }
 
 func (s *services) FetchTransactions() ([]Transaction, error) {
-	var tsx []Transaction
-
-	return tsx, nil
+	tsxs, _ := s.repo.Fetch()
+	return tsxs, nil
 }
 
 func (s *services) FetchTransaction(id uint) (Transaction, error) {

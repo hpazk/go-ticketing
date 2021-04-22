@@ -33,13 +33,13 @@ func (r *repo) Store(tsx Transaction) (Transaction, error) {
 }
 
 func (r *repo) Fetch() ([]Transaction, error) {
-	var events []Transaction
-	err := r.db.Find(&events).Error
+	var tsxs []Transaction
+	err := r.db.Find(&tsxs).Error
 	if err != nil {
-		return events, err
+		return tsxs, err
 	}
 
-	return events, nil
+	return tsxs, nil
 }
 
 func (r *repo) FindById(id uint) (Transaction, error) {
