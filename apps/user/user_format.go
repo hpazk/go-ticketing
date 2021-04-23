@@ -3,6 +3,7 @@ package user
 import (
 	"time"
 
+	"github.com/hpazk/go-booklib/database/model"
 	"gorm.io/gorm"
 )
 
@@ -41,7 +42,7 @@ type loginResponse struct {
 	AuthToken string `json:"auth_token"`
 }
 
-func userLoginResponseFormatter(user User, authToken string) loginResponse {
+func userLoginResponseFormatter(user model.User, authToken string) loginResponse {
 	formatter := loginResponse{
 		ID:        user.ID,
 		Username:  user.Username,
@@ -53,7 +54,7 @@ func userLoginResponseFormatter(user User, authToken string) loginResponse {
 	return formatter
 }
 
-func userResponseFormatter(user User, authToken string) response {
+func userResponseFormatter(user model.User, authToken string) response {
 	formatter := response{
 		ID:        user.ID,
 		Username:  user.Username,

@@ -4,16 +4,17 @@ import (
 	"errors"
 	"time"
 
+	"github.com/hpazk/go-booklib/database/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserServices interface {
-	signUp(req *request) (User, error)
-	signIn(req *loginRequest) (User, error)
-	// FetchUsers() ([]User, error)
-	FetchUserById(id uint) (User, error)
-	// FetchUserByEmail(email string) (User, error)
-	// UpdateUser(id uint, req *updateRequest) (User, error)
+	signUp(req *request) (model.User, error)
+	signIn(req *loginRequest) (model.User, error)
+	// FetchUsers() ([]model.User, error)
+	FetchUserById(id uint) (model.User, error)
+	// FetchUserByEmail(email string) (model.User, error)
+	// UpdateUser(id uint, req *updateRequest) (model.User, error)
 	// DeleteUser(id uint) error
 	CheckExistEmail(email string) bool
 }
@@ -26,8 +27,8 @@ func UserService(repo repository) *services {
 	return &services{repo}
 }
 
-func (s *services) signUp(req *request) (User, error) {
-	userReg := User{}
+func (s *services) signUp(req *request) (model.User, error) {
+	userReg := model.User{}
 	userReg.Username = req.Username
 	userReg.Fullname = req.Fullname
 	userReg.Email = req.Email
@@ -52,7 +53,7 @@ func (s *services) signUp(req *request) (User, error) {
 }
 
 // TODO user-login
-func (s *services) signIn(req *loginRequest) (User, error) {
+func (s *services) signIn(req *loginRequest) (model.User, error) {
 	email := req.Email
 	password := req.Password
 
@@ -78,8 +79,8 @@ func (s *services) CheckExistEmail(email string) bool {
 }
 
 // // TODO error-handling
-// func (s *services) FetchUsers() ([]User, error) {
-// 	var users []User
+// func (s *services) FetchUsers() ([]model.User, error) {
+// 	var users []model.User
 // 	users, err := s.repo.Fetch()
 // 	if err != nil {
 // 		return users, err
@@ -88,8 +89,8 @@ func (s *services) CheckExistEmail(email string) bool {
 // 	return users, nil
 // }
 
-func (s *services) FetchUserById(id uint) (User, error) {
-	var user User
+func (s *services) FetchUserById(id uint) (model.User, error) {
+	var user model.User
 	user, err := s.repo.FindById(id)
 	if err != nil {
 		return user, err
@@ -98,8 +99,8 @@ func (s *services) FetchUserById(id uint) (User, error) {
 	return user, nil
 }
 
-// func (s *services) FetchUserByEmail(email string) (User, error) {
-// 	var user User
+// func (s *services) FetchUserByEmail(email string) (model.User, error) {
+// 	var user model.User
 // 	user, err := s.repo.FindByEmail(email)
 // 	if err != nil {
 // 		return user, err
@@ -108,8 +109,8 @@ func (s *services) FetchUserById(id uint) (User, error) {
 // 	return user, nil
 // }
 
-// func (s *services) UpdateUser(id uint, req *updateRequest) (User, error) {
-// 	userReg := User{}
+// func (s *services) UpdateUser(id uint, req *updateRequest) (model.User, error) {
+// 	userReg := model.User{}
 // 	userReg.ID = id
 // 	userReg.Name = req.Name
 // 	userReg.Address = req.Address

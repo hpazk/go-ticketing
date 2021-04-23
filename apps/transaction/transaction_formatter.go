@@ -1,5 +1,7 @@
 package transaction
 
+import "github.com/hpazk/go-booklib/database/model"
+
 type response struct {
 	ID            uint    `json:"id"`
 	ParticipantID uint    `json:"participan_id"`
@@ -9,11 +11,10 @@ type response struct {
 	Amount        float64 `json:"amount"`
 }
 
-func tsxFormatter(tsx Transaction) response {
+func tsxFormatter(tsx model.Transaction) response {
 	formatter := response{
 		ID:            tsx.ID,
 		ParticipantID: tsx.ParticipantID,
-		CreatorID:     tsx.CreatorID,
 		EventID:       tsx.EventID,
 		StatusPayment: tsx.StatusPayment,
 		Amount:        tsx.Amount,
@@ -22,7 +23,7 @@ func tsxFormatter(tsx Transaction) response {
 	return formatter
 }
 
-func tsxsFormatter(tsxs []Transaction) []response {
+func tsxsFormatter(tsxs []model.Transaction) []response {
 	formatter := []response{}
 
 	for _, campaign := range tsxs {

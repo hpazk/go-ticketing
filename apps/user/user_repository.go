@@ -1,15 +1,16 @@
 package user
 
 import (
+	"github.com/hpazk/go-booklib/database/model"
 	"gorm.io/gorm"
 )
 
 type repository interface {
-	Store(user User) (User, error)
-	Fetch() ([]User, error)
-	Update(user User) (User, error)
-	FindById(id uint) (User, error)
-	FindByEmail(email string) (User, error)
+	Store(user model.User) (model.User, error)
+	Fetch() ([]model.User, error)
+	Update(user model.User) (model.User, error)
+	FindById(id uint) (model.User, error)
+	FindByEmail(email string) (model.User, error)
 	Delete(id uint) error
 }
 
@@ -22,7 +23,7 @@ func userRepository(db *gorm.DB) *repo {
 }
 
 // Save New User
-func (r *repo) Store(user User) (User, error) {
+func (r *repo) Store(user model.User) (model.User, error) {
 	err := r.db.Create(&user).Error
 	if err != nil {
 		return user, err
@@ -32,8 +33,8 @@ func (r *repo) Store(user User) (User, error) {
 }
 
 // Get All Users
-func (r *repo) Fetch() ([]User, error) {
-	var users []User
+func (r *repo) Fetch() ([]model.User, error) {
+	var users []model.User
 	err := r.db.Find(&users).Error
 	if err != nil {
 		return users, err
@@ -43,8 +44,8 @@ func (r *repo) Fetch() ([]User, error) {
 }
 
 // Get User by Id
-func (r *repo) FindById(id uint) (User, error) {
-	var user User
+func (r *repo) FindById(id uint) (model.User, error) {
+	var user model.User
 
 	err := r.db.First(&user, "id = ?", id).Error
 	if err != nil {
@@ -55,8 +56,8 @@ func (r *repo) FindById(id uint) (User, error) {
 }
 
 // Get User By Email
-func (r *repo) FindByEmail(email string) (User, error) {
-	var user User
+func (r *repo) FindByEmail(email string) (model.User, error) {
+	var user model.User
 
 	err := r.db.First(&user, "email = ?", email).Error
 	if err != nil {
@@ -67,7 +68,7 @@ func (r *repo) FindByEmail(email string) (User, error) {
 }
 
 // Update user
-func (r *repo) Update(user User) (User, error) {
+func (r *repo) Update(user model.User) (model.User, error) {
 	err := r.db.Save(&user).Error
 	if err != nil {
 		return user, err
@@ -78,7 +79,7 @@ func (r *repo) Update(user User) (User, error) {
 
 // Delete User
 func (r *repo) Delete(id uint) error {
-	var user User
+	var user model.User
 	err := r.db.Where("id = ?", id).Delete(&user).Error
 	if err != nil {
 		return err

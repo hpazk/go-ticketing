@@ -56,16 +56,9 @@ func (h *handler) DeleteTransaction(c echo.Context) error {
 func (h *handler) GetTransactionsByEvent(c echo.Context) error {
 	var eventId int
 	paramEventID := c.Param("id")
-	fmt.Println(paramEventID)
-	eventId, _ = strconv.Atoi(paramEventID)
-	tsxs, _ := h.services.FetchTransactionsByEvent(uint(eventId))
-	fmt.Println(tsxs)
 
-	var transactions []Transaction
-	rd := cache.GetRedisInstance()
-	tsxsJson, _ := rd.Get("tsx").Result()
-	if err := json.Unmarshal([]byte(tsxsJson), &transactions); err != nil {
-		panic(err)
-	}
+	eventId, _ = strconv.Atoi(paramEventID)
+	transactions, _ := h.services.FetchTransactionsByEvent(uint(eventId))
+
 	return c.JSON(http.StatusOK, transactions)
 }

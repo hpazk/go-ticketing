@@ -3,16 +3,17 @@ package transaction
 import (
 	"fmt"
 
+	"github.com/hpazk/go-booklib/database/model"
 	"gorm.io/gorm"
 )
 
 type repository interface {
-	Store(tsx Transaction) (Transaction, error)
-	Fetch() ([]Transaction, error)
-	FindById(id uint) (Transaction, error)
-	Update(tsx Transaction) (Transaction, error)
+	Store(tsx model.Transaction) (model.Transaction, error)
+	Fetch() ([]model.Transaction, error)
+	FindById(id uint) (model.Transaction, error)
+	Update(tsx model.Transaction) (model.Transaction, error)
 	Delete(id uint) error
-	FindByEventID(eventID uint) ([]Transaction, error)
+	FindByEventID(eventID uint) ([]model.Transaction, error)
 }
 
 type repo struct {
@@ -23,7 +24,7 @@ func transactionRepository(db *gorm.DB) *repo {
 	return &repo{db}
 }
 
-func (r *repo) Store(tsx Transaction) (Transaction, error) {
+func (r *repo) Store(tsx model.Transaction) (model.Transaction, error) {
 	err := r.db.Create(&tsx).Error
 	if err != nil {
 		return tsx, err
@@ -32,18 +33,20 @@ func (r *repo) Store(tsx Transaction) (Transaction, error) {
 	return tsx, nil
 }
 
-func (r *repo) Fetch() ([]Transaction, error) {
-	var tsxs []Transaction
+func (r *repo) Fetch() ([]model.Transaction, error) {
+	var tsxs []model.Transaction
 	err := r.db.Find(&tsxs).Error
 	if err != nil {
 		return tsxs, err
 	}
 
+	fmt.Println(tsxs)
+
 	return tsxs, nil
 }
 
-func (r *repo) FindById(id uint) (Transaction, error) {
-	var tsx Transaction
+func (r *repo) FindById(id uint) (model.Transaction, error) {
+	var tsx model.Transaction
 	err := r.db.Find(&tsx).Error
 	if err != nil {
 		return tsx, err
@@ -52,7 +55,7 @@ func (r *repo) FindById(id uint) (Transaction, error) {
 	return tsx, nil
 }
 
-func (r *repo) Update(tsx Transaction) (Transaction, error) {
+func (r *repo) Update(tsx model.Transaction) (model.Transaction, error) {
 	err := r.db.Save(&tsx).Error
 	if err != nil {
 		return tsx, err
@@ -62,7 +65,7 @@ func (r *repo) Update(tsx Transaction) (Transaction, error) {
 }
 
 func (r *repo) Delete(id uint) error {
-	var tsx Transaction
+	var tsx model.Transaction
 	err := r.db.Where("id = ?", id).Delete(&tsx).Error
 	if err != nil {
 		return err
@@ -70,14 +73,16 @@ func (r *repo) Delete(id uint) error {
 	return nil
 }
 
-// Event - Transaction
-func (r *repo) FindByEventID(eventID uint) ([]Transaction, error) {
-	var tsxs []Transaction
+// Event - model.Transaction
+func (r *repo) FindByEventID(eventID uint) ([]model.Transaction, error) {
+	var transactions []model.Transaction
 
-	err := r.db.Where("event_id = ?", eventID).Find(&tsxs).Error
+	// TODO WHERE transactions.status_payment = %s
+	query := fmt.Sprintf("SELECT * FROM transactions JOIN users ON transactions.participant_id = users.id WHERE transactions.event_id = %d AND transactions.status_payment='passed';", eventID)
+	err := r.db.Raw(query).Scan(&transactions).Error
 	if err != nil {
-		return tsxs, err
+		return transactions, err
 	}
-	fmt.Println(tsxs[0])
-	return tsxs, nil
+
+	return transactions, nil
 }

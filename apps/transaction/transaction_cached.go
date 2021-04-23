@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/hpazk/go-booklib/cache"
+	"github.com/hpazk/go-booklib/database/model"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,7 +20,7 @@ func (h *handler) GetTransactionsCached(hf echo.HandlerFunc) echo.HandlerFunc {
 		tsxs, _ := h.services.FetchTransactionsByEvent(uint(eventId))
 		fmt.Println(tsxs)
 
-		var transactions []Transaction
+		var transactions []model.Transaction
 		rd := cache.GetRedisInstance()
 		tsxsJson, _ := rd.Get("tsx").Result()
 		if err := json.Unmarshal([]byte(tsxsJson), &transactions); err != nil {

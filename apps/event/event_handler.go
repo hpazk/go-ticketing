@@ -62,3 +62,9 @@ func (h *handler) PutEvent(c echo.Context) error {
 func (h *handler) DeleteEvent(c echo.Context) error {
 	return c.JSON(http.StatusOK, helper.M{"message": "delete-event"})
 }
+
+func (h *handler) GetEventReport(c echo.Context) error {
+	// TODO creator-id
+	// report, _ := h.services.FetchEventReport(1)
+	return c.JSON(http.StatusOK, "report")
+}
