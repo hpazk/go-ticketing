@@ -35,10 +35,10 @@ func (a *App) Route() []helper.Route {
 			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
 		{
-			Method:  echo.GET,
-			Path:    "/transactions",
-			Handler: handlers.GetTransactions,
-			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
+			Method:     echo.GET,
+			Path:       "/transactions",
+			Handler:    handlers.GetTransactions,
+			Middleware: []echo.MiddlewareFunc{handlers.GetTransactionsCached},
 		},
 		{
 			Method:  echo.GET,
