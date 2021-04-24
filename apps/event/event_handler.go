@@ -2,6 +2,7 @@ package event
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/hpazk/go-booklib/auth"
 	"github.com/hpazk/go-booklib/helper"
@@ -65,6 +66,7 @@ func (h *handler) DeleteEvent(c echo.Context) error {
 
 func (h *handler) GetEventReport(c echo.Context) error {
 	// TODO creator-id
-	// report, _ := h.services.FetchEventReport(1)
-	return c.JSON(http.StatusOK, "report")
+	eventID, _ := strconv.Atoi(c.Param("id"))
+	report, _ := h.services.FetchEventReport(1, uint(eventID))
+	return c.JSON(http.StatusOK, report)
 }

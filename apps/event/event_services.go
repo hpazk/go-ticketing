@@ -1,6 +1,7 @@
 package event
 
 import (
+	"github.com/hpazk/go-booklib/apps/report"
 	"github.com/hpazk/go-booklib/database/model"
 )
 
@@ -10,7 +11,7 @@ type Services interface {
 	FetchEvent(id uint) (model.Event, error)
 	EditEvent(id uint, req *request) (model.Event, error)
 	RemoveEvent(id uint) error
-	// FetchEventReport(creatorID uint) ([]report.EventReport, error)
+	FetchEventReport(creatorID uint, eventID uint) (report.EventReport, error)
 }
 
 type services struct {
@@ -94,11 +95,26 @@ func (s *services) RemoveEvent(id uint) error {
 	return nil
 }
 
-func (s *services) FetchEventReport(creatorID uint) ([]model.User, error) {
-	report, err := s.repo.FetchReport(creatorID)
-	if err != nil {
-		return report, err
-	}
-
-	return report, nil
+func (s *services) FetchEventReport(creatorID uint, eventID uint) (report.EventReport, error) {
+	result, _ := s.repo.FetchReport(creatorID, eventID)
+	eventReport := report.EventReport{}
+	eventReport.Event = result[0].TitleEvent
+	eventReport.TotalParticipant = len(result)
+	eventReport.Participants = func(res []report.ReportResult) []report.Participants {
+		participants := []report.Participants{}
+		for _, r := range res {
+			participant := report.Participants{}
+			participant.Email = r.Email
+			participants = append(participants, participant)
+		}
+		return participants
+	}(result)
+	eventReport.TotalAmount = func(res []report.ReportResult) float64 {
+		var totalAmount float64
+		for _, r := range res {
+			totalAmount += r.Amount
+		}
+		return totalAmount
+	}(result)
+	return eventReport, nil
 }

@@ -3,6 +3,7 @@ package event
 import (
 	"fmt"
 
+	"github.com/hpazk/go-booklib/apps/report"
 	"github.com/hpazk/go-booklib/database/model"
 	"gorm.io/gorm"
 )
@@ -13,7 +14,7 @@ type repository interface {
 	FindById(id uint) (model.Event, error)
 	Update(event model.Event) (model.Event, error)
 	Delete(id uint) error
-	FetchReport(creatorID uint) ([]model.User, error)
+	FetchReport(creatorID uint, eventID uint) ([]report.ReportResult, error)
 }
 
 type repo struct {
@@ -72,15 +73,14 @@ func (r *repo) Delete(id uint) error {
 }
 
 // model.Event - Transaction - User
-func (r *repo) FetchReport(creatorID uint) ([]model.User, error) {
-	var report []model.User
-	q := fmt.Sprintf("SELECT * FROM transactions JOIN users ON transactions.participant_id = users.id JOIN events ON transactions.event_id = events.id WHERE events.creator_id = %d;", creatorID)
-	err := r.db.Raw(q).Scan(&report).Error
+func (r *repo) FetchReport(creatorID uint, eventID uint) ([]report.ReportResult, error) {
+	var result []report.ReportResult
+	// TODO events.id = eventID
+	q := fmt.Sprintf("SELECT transactions.id AS transaction_id,events.id AS event_id,users.id AS user_id,users.email,events.title_event,events.price,transactions.status_payment,transactions.amount FROM events JOIN transactions ON events.id = transactions.event_id JOIN users ON transactions.participant_id = users.id WHERE events.creator_id = %d AND events.id = %d", creatorID, eventID)
+	err := r.db.Raw(q).Scan(&result).Error
 	if err != nil {
-		return report, err
+		return result, err
 	}
 
-	fmt.Println(report)
-
-	return report, nil
+	return result, nil
 }
