@@ -1,6 +1,9 @@
 package transaction
 
-import "github.com/hpazk/go-booklib/database/model"
+import (
+	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-booklib/helper"
+)
 
 type Services interface {
 	SaveTransaction(req *request) (model.Transaction, error)
@@ -20,8 +23,23 @@ func transactionService(repo repository) *services {
 }
 
 func (s *services) SaveTransaction(req *request) (model.Transaction, error) {
-	var tsx model.Transaction
-	return tsx, nil
+	// TODO jwt: id, email
+	var id uint = 1
+	var participantEmail string = "email@email.com"
+
+	var transaction model.Transaction
+	transaction.EventID = req.EventID
+	transaction.ParticipantID = id
+
+	savedTransaction, err := s.repo.Store(transaction)
+	if err != nil {
+		return savedTransaction, nil
+	}
+
+	emailBody := helper.PaymentOrderTemplate(savedTransaction)
+	helper.SendEmail(participantEmail, "Webinar Payment Order", emailBody)
+
+	return savedTransaction, nil
 }
 
 func (s *services) FetchTransactions() ([]model.Transaction, error) {

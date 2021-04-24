@@ -18,7 +18,8 @@ type services struct {
 	repo repository
 }
 
-func eventService(repo repository) *services {
+func eventService() *services {
+	repo := EventRepository()
 	return &services{repo}
 }
 
@@ -98,7 +99,7 @@ func (s *services) RemoveEvent(id uint) error {
 func (s *services) FetchEventReport(creatorID uint, eventID uint) (report.EventReport, error) {
 	result, _ := s.repo.FetchReport(creatorID, eventID)
 	eventReport := report.EventReport{}
-	eventReport.Event = result[0].TitleEvent
+	eventReport.TitleEvent = result[0].TitleEvent
 	eventReport.TotalParticipant = len(result)
 	eventReport.Participants = func(res []report.ReportResult) []report.Participants {
 		participants := []report.Participants{}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hpazk/go-booklib/apps/report"
+	"github.com/hpazk/go-booklib/database"
 	"github.com/hpazk/go-booklib/database/model"
 	"gorm.io/gorm"
 )
@@ -21,7 +22,8 @@ type repo struct {
 	db *gorm.DB
 }
 
-func eventRepository(db *gorm.DB) *repo {
+func EventRepository() *repo {
+	db := database.GetDbInstance()
 	return &repo{db}
 }
 

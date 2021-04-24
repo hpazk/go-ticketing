@@ -8,6 +8,7 @@ type Transaction struct {
 	gorm.Model
 	ParticipantID uint
 	EventID       int
-	StatusPayment string `gorm:"type:enum('passed', 'failed');''"`
+	ImagePath     string
+	StatusPayment string `sql:"type:ENUM('passed', 'failed'); default:'failed'"`
 	Amount        float64
 }

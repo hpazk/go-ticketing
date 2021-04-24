@@ -23,7 +23,31 @@ func transactionHandler(services Services, authServices auth.AuthServices) *hand
 }
 
 func (h *handler) PostTransaction(c echo.Context) error {
-	return c.JSON(http.StatusOK, helper.M{"message": "post-transaction"})
+	req := new(request)
+
+	// Check request
+	if err := c.Bind(req); err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	// Validate request
+	if err := c.Validate(req); err != nil {
+		errorFormatter := helper.ErrorFormatter(err)
+		errorMessage := helper.M{"errors": errorFormatter}
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	newTransaction, err := h.services.SaveTransaction(req)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err.Error(), nil)
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+	transactionData := newTransaction
+	return c.JSON(http.StatusOK, transactionData)
 }
 
 func (h *handler) GetTransactions(c echo.Context) error {

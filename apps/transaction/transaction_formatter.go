@@ -2,6 +2,11 @@ package transaction
 
 import "github.com/hpazk/go-booklib/database/model"
 
+type request struct {
+	EventID int     `json:"event_id" validate:"required"`
+	Amount  float64 `json:"amount"`
+}
+
 type response struct {
 	ID            uint    `json:"id"`
 	ParticipantID uint    `json:"participan_id"`

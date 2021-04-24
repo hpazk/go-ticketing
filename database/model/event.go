@@ -15,7 +15,7 @@ type Event struct {
 	Banner            string
 	Price             float64
 	Quantity          int
-	Status            string `gorm:"type:enum('draft', 'release'); default:'draft'"`
+	Status            string `sql:"type:ENUM('draft', 'release'); default:'draft'"`
 	EventStartDate    time.Time
 	EventEndDate      time.Time
 	CampaignStartDate time.Time

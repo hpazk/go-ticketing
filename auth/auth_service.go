@@ -8,7 +8,7 @@ import (
 )
 
 type AuthServices interface {
-	GetAccessToken(userId uint, userRole string) (string, error)
+	GetAccessToken(userId uint, userRole, userEmail string) (string, error)
 	ValidateToken(encodedToken string) (*jwt.Token, error)
 }
 
@@ -19,10 +19,11 @@ func AuthService() *authService {
 	return &authService{}
 }
 
-func (s *authService) GetAccessToken(userId uint, userRole string) (string, error) {
+func (s *authService) GetAccessToken(userId uint, userRole, userEmail string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userId
 	claims["user_role"] = userRole
+	claims["user_email"] = userEmail
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedKey, err := token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))

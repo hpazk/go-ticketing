@@ -62,7 +62,7 @@ func (h *userHandler) PostUserRegistration(c echo.Context) error {
 	}
 
 	// Get access token
-	authToken, err := h.authServices.GetAccessToken(newUser.ID, newUser.Role)
+	authToken, err := h.authServices.GetAccessToken(newUser.ID, newUser.Role, newUser.Email)
 	if err != nil {
 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "something went wrong", nil)
 
@@ -104,7 +104,7 @@ func (h *userHandler) PostUserLogin(c echo.Context) error {
 	}
 
 	// TODO auth-token
-	authToken, err := h.authServices.GetAccessToken(signedInUser.ID, signedInUser.Role)
+	authToken, err := h.authServices.GetAccessToken(signedInUser.ID, signedInUser.Role, signedInUser.Email)
 	if err != nil {
 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "something went wrong", nil)
 

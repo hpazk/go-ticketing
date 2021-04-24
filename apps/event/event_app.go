@@ -4,22 +4,15 @@ import (
 	"github.com/hpazk/go-booklib/auth"
 	"github.com/hpazk/go-booklib/helper"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 type App struct {
-	Db *gorm.DB
-}
-
-func Init(db *gorm.DB) *App {
-	return &App{db}
 }
 
 var handlers *handler
 
 func (a *App) UseApp() {
-	repo := eventRepository(a.Db)
-	service := eventService(repo)
+	service := eventService()
 	authService := auth.AuthService()
 
 	handlers = eventHandler(service, authService)

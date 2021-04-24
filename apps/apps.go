@@ -13,13 +13,13 @@ import (
 func AppInit(e *echo.Echo) {
 	// Database
 	db := database.GetDbInstance()
-	// err := db.AutoMigrate(
-	// 	&user.User{},
-	// 	&event.Event{},
-	// 	&transaction.Transaction{},
-	// )
-	// // dbMigration := database.GetMigrations(db)
-	// // err := dbMigration.Migrate()
+	// dbMigration := database.GetMigrations(db)
+	// err := dbMigration.Migrate()
+	// // err := db.AutoMigrate(
+	// // 	&model.User{},
+	// // 	&model.Event{},
+	// // 	&model.Transaction{},
+	// // )
 	// if err == nil {
 	// 	fmt.Println("Migrations did run successfully")
 	// } else {
@@ -28,11 +28,12 @@ func AppInit(e *echo.Echo) {
 
 	// Apps
 	userApp := user.Init(db)
-	eventApp := event.Init(db)
 	tsxApp := transaction.Init(db)
 	userApp.UseApp()
-	eventApp.UseApp()
 	tsxApp.UseApp()
+
+	eventApp := event.App{}
+	eventApp.UseApp()
 
 	// Route
 	handlers := []helper.Handler{

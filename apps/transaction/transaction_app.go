@@ -36,7 +36,7 @@ func (a *App) Route() []helper.Route {
 		},
 		{
 			Method:     echo.GET,
-			Path:       "/transactions",
+			Path:       "/transactions/checkout",
 			Handler:    handlers.GetTransactions,
 			Middleware: []echo.MiddlewareFunc{handlers.GetTransactionsCached},
 		},
@@ -49,14 +49,14 @@ func (a *App) Route() []helper.Route {
 		},
 		{
 			Method:  echo.PUT,
-			Path:    "/transactions",
+			Path:    "/transactions/:id",
 			Handler: handlers.PutTransaction,
 			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 
 		},
 		{
 			Method:  echo.DELETE,
-			Path:    "/transactions",
+			Path:    "/transactions/:id",
 			Handler: handlers.DeleteTransaction,
 			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
