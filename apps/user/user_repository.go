@@ -12,6 +12,7 @@ type repository interface {
 	Update(user model.User) (model.User, error)
 	FindById(id uint) (model.User, error)
 	FindByEmail(email string) (model.User, error)
+	FindByRole(role string) (model.User, error)
 	Delete(id uint) error
 }
 
@@ -62,6 +63,18 @@ func (r *repo) FindByEmail(email string) (model.User, error) {
 	var user model.User
 
 	err := r.db.First(&user, "email = ?", email).Error
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+// Get User By Role
+func (r *repo) FindByRole(role string) (model.User, error) {
+	var user model.User
+
+	err := r.db.First(&user, "role = ?", role).Error
 	if err != nil {
 		return user, err
 	}

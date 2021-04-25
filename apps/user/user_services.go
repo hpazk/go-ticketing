@@ -10,12 +10,13 @@ import (
 type UserServices interface {
 	signUp(req *request) (model.User, error)
 	signIn(req *loginRequest) (model.User, error)
-	// FetchUsers() ([]model.User, error)
+	FetchUsers() ([]model.User, error)
 	FetchUserById(id uint) (model.User, error)
-	// FetchUserByEmail(email string) (model.User, error)
-	// UpdateUser(id uint, req *updateRequest) (model.User, error)
-	// DeleteUser(id uint) error
+	FetchUserByRole(role string) (model.User, error)
+	EditUser(id uint, req *request) (model.User, error)
+	RemoveUser(id uint) error
 	CheckExistEmail(email string) bool
+	NewCreator(req *request) (model.User, error)
 }
 
 type services struct {
@@ -28,20 +29,20 @@ func UserService() *services {
 }
 
 func (s *services) signUp(req *request) (model.User, error) {
-	userReg := model.User{}
-	userReg.Username = req.Username
-	userReg.Fullname = req.Fullname
-	userReg.Email = req.Email
-	userReg.Password = req.Password
+	user := model.User{}
+	user.Username = req.Username
+	user.Fullname = req.Fullname
+	user.Email = req.Email
+	user.Password = req.Password
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return userReg, err
+		return user, err
 	}
 
-	userReg.Password = string(hashedPassword)
+	user.Password = string(hashedPassword)
 
-	newUser, err := s.repo.Store(userReg)
+	newUser, err := s.repo.Store(user)
 	if err != nil {
 		return newUser, err
 	}
@@ -74,16 +75,15 @@ func (s *services) CheckExistEmail(email string) bool {
 	return true
 }
 
-// // TODO error-handling
-// func (s *services) FetchUsers() ([]model.User, error) {
-// 	var users []model.User
-// 	users, err := s.repo.Fetch()
-// 	if err != nil {
-// 		return users, err
-// 	}
+func (s *services) FetchUsers() ([]model.User, error) {
+	var users []model.User
+	users, err := s.repo.Fetch()
+	if err != nil {
+		return users, err
+	}
 
-// 	return users, nil
-// }
+	return users, nil
+}
 
 func (s *services) FetchUserById(id uint) (model.User, error) {
 	var user model.User
@@ -95,39 +95,61 @@ func (s *services) FetchUserById(id uint) (model.User, error) {
 	return user, nil
 }
 
-// func (s *services) FetchUserByEmail(email string) (model.User, error) {
-// 	var user model.User
-// 	user, err := s.repo.FindByEmail(email)
-// 	if err != nil {
-// 		return user, err
-// 	}
+func (s *services) FetchUserByRole(role string) (model.User, error) {
+	user, err := s.repo.FindByRole(role)
+	if err != nil {
+		return user, err
+	}
 
-// 	return user, nil
-// }
+	return user, nil
+}
 
-// func (s *services) UpdateUser(id uint, req *updateRequest) (model.User, error) {
-// 	userReg := model.User{}
-// 	userReg.ID = id
-// 	userReg.Name = req.Name
-// 	userReg.Address = req.Address
-// 	// userReg.Photo = ""
-// 	userReg.Email = req.Email
-// 	// userReg.Role = ""
-// 	userReg.CreatedAt = time.Now()
-// 	userReg.UpdatedAt = time.Now()
+func (s *services) EditUser(id uint, req *request) (model.User, error) {
+	user, err := s.repo.FindById(id)
+	if err != nil {
+		return user, err
+	}
 
-// 	editedUser, err := s.repo.Update(userReg)
-// 	if err != nil {
-// 		return editedUser, err
-// 	}
+	user.Username = req.Username
+	user.Fullname = req.Fullname
+	user.Email = req.Email
 
-// 	return editedUser, nil
-// }
+	editedUser, err := s.repo.Update(user)
+	if err != nil {
+		return editedUser, err
+	}
 
-// func (s *services) DeleteUser(id uint) error {
-// 	if err := s.repo.Delete(id); err != nil {
-// 		return err
-// 	}
+	return editedUser, nil
+}
 
-// 	return nil
-// }
+func (s *services) RemoveUser(id uint) error {
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Creator
+func (s *services) NewCreator(req *request) (model.User, error) {
+	user := model.User{}
+	user.Username = req.Username
+	user.Fullname = req.Fullname
+	user.Email = req.Email
+	user.Password = req.Password
+	user.Role = "creator"
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return user, err
+	}
+
+	user.Password = string(hashedPassword)
+
+	newUser, err := s.repo.Store(user)
+	if err != nil {
+		return newUser, err
+	}
+
+	return newUser, nil
+}

@@ -1,12 +1,9 @@
 package apps
 
 import (
-	"fmt"
-
 	"github.com/hpazk/go-ticketing/apps/event"
 	"github.com/hpazk/go-ticketing/apps/transaction"
 	"github.com/hpazk/go-ticketing/apps/user"
-	"github.com/hpazk/go-ticketing/database"
 	"github.com/hpazk/go-ticketing/helper"
 	"github.com/hpazk/go-ticketing/routes"
 	"github.com/labstack/echo/v4"
@@ -14,19 +11,14 @@ import (
 
 func AppInit(e *echo.Echo) {
 	// Database
-	db := database.GetDbInstance()
-	dbMigration := database.GetMigrations(db)
-	err := dbMigration.Migrate()
-	// // err := db.AutoMigrate(
-	// // 	&model.User{},
-	// // 	&model.Event{},
-	// // 	&model.Transaction{},
-	// // )
-	if err != nil {
-		fmt.Println("migrations failed.", err)
-	} else {
-		fmt.Println("Migrations did run successfully")
-	}
+	// db := database.GetDbInstance()
+	// dbMigration := database.GetMigrations(db)
+	// err := dbMigration.Migrate()
+	// if err != nil {
+	// 	fmt.Println("migrations failed.", err)
+	// } else {
+	// 	fmt.Println("Migrations did run successfully")
+	// }
 
 	// Apps
 	userApp := user.App{}

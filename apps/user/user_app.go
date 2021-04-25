@@ -22,8 +22,14 @@ func (a *App) Route() []helper.Route {
 	return []helper.Route{
 		{
 			Method:  echo.POST,
-			Path:    "/registration",
+			Path:    "/users",
 			Handler: handler.PostUserRegistration,
+		},
+		{
+			Method:     echo.POST,
+			Path:       "/users/creator",
+			Handler:    handler.PostNewCreator,
+			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
 		{
 			Method:  echo.POST,
@@ -31,33 +37,33 @@ func (a *App) Route() []helper.Route {
 			Handler: handler.PostUserLogin,
 		},
 		{
-			Method:     echo.POST,
-			Path:       "/logout",
-			Handler:    handler.PostUserLogout,
+			Method:     echo.GET,
+			Path:       "/users",
+			Handler:    handler.GetUsers,
+			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
+		},
+		{
+			Method:     echo.PATCH,
+			Path:       "/users/:id",
+			Handler:    handler.PutUser,
+			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
+		},
+		{
+			Method:     echo.DELETE,
+			Path:       "/users/:id",
+			Handler:    handler.DeleteUser,
 			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
 		// {
-		// 	Method:  echo.GET,
-		// 	Path:    "/users",
-		// 	Handler: handler.GetUsers,
+		// 	Method:     echo.POST,
+		// 	Path:       "/logout",
+		// 	Handler:    handler.PostUserLogout,
 		// 	Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		// },
 		// {
 		// 	Method:     echo.GET,
 		// 	Path:       "/users/:id",
 		// 	Handler:    handler.GetUser,
-		// 	Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
-		// },
-		// {
-		// 	Method:     echo.PUT,
-		// 	Path:       "/users/:id",
-		// 	Handler:    handler.PutUser,
-		// 	Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
-		// },
-		// {
-		// 	Method:     echo.DELETE,
-		// 	Path:       "/users/:id",
-		// 	Handler:    handler.DeleteUser,
 		// 	Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		// },
 	}

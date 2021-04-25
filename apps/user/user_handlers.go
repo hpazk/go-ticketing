@@ -1,8 +1,11 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/hpazk/go-ticketing/auth"
 	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
@@ -107,104 +110,111 @@ func (h *userHandler) PostUserLogout(c echo.Context) error {
 	return c.JSON(http.StatusOK, helper.M{"message": "user-logout"})
 }
 
-// // TODO error-handling
-// func (h *userHandler) GetUsers(c echo.Context) error {
-// 	// accessToken := c.Get("user").(*jwt.Token)
-// 	// claims := accessToken.Claims.(jwt.MapClaims)
-// 	// role := claims["user_role"]
+func (h *userHandler) GetUsers(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
 
-// 	// if role != "admin" {
-// 	// 	response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
-// 	// 	return c.JSON(http.StatusUnauthorized, response)
-// 	// }
+	if role != "admin" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
 
-// 	// if findByEmail := c.QueryParam("email"); findByEmail != "" {
-// 	// 	email := c.QueryParam("email")
+	if findByRole := c.QueryParam("role"); findByRole != "" {
+		role := c.QueryParam("role")
 
-// 	// 	user, err := h.userServices.FetchUserByEmail(email)
-// 	// 	if err != nil {
-// 	// 		return c.JSON(http.StatusNotFound, helper.M{"message": err.Error()})
-// 	// 	} else {
-// 	// 		response := user
-// 	// 		return c.JSON(http.StatusOK, response)
-// 	// 	}
-// 	// }
+		user, err := h.userServices.FetchUserByRole(role)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, helper.M{"message": err.Error()})
+		} else {
+			response := user
+			return c.JSON(http.StatusOK, response)
+		}
+	}
 
-// 	users, err := h.userServices.FetchUsers()
-// 	if err != nil {
-// 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err.Error(), nil)
-// 		return c.JSON(http.StatusInternalServerError, response)
-// 	}
+	users, err := h.userServices.FetchUsers()
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err.Error(), nil)
+		return c.JSON(http.StatusInternalServerError, response)
+	}
 
-// 	usersData := userResponseFormatter(users)
+	usersData := users
 
-// 	response := helper.ResponseFormatter(http.StatusOK, "success", "all user successfully fetched", usersData)
-// 	return c.JSON(http.StatusOK, response)
-// }
+	response := helper.ResponseFormatter(http.StatusOK, "success", "all user successfully fetched", usersData)
+	return c.JSON(http.StatusOK, response)
+}
 
-// func (h *userHandler) GetUser(c echo.Context) error {
-// 	accessToken := c.Get("user").(*jwt.Token)
-// 	claims := accessToken.Claims.(jwt.MapClaims)
-// 	role := claims["user_role"]
+func (h *userHandler) GetUser(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
 
-// 	if role != "admin" {
-// 		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
-// 		return c.JSON(http.StatusUnauthorized, response)
-// 	}
+	if role != "admin" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
 
-// 	id, _ := strconv.Atoi(c.Param("id"))
-// 	response, _ := h.userServices.FetchUserById(uint(id))
-// 	return c.JSON(http.StatusOK, response)
-// }
+	id, _ := strconv.Atoi(c.Param("id"))
+	response, _ := h.userServices.FetchUserById(uint(id))
+	return c.JSON(http.StatusOK, response)
+}
 
-// func (h *userHandler) PutUser(c echo.Context) error {
-// 	accessToken := c.Get("user").(*jwt.Token)
-// 	claims := accessToken.Claims.(jwt.MapClaims)
-// 	role := claims["user_role"]
+func (h *userHandler) PutUser(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
 
-// 	if role != "admin" {
-// 		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
-// 		return c.JSON(http.StatusUnauthorized, response)
-// 	}
+	if role != "admin" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
 
-// 	id, _ := strconv.Atoi(c.Param("id"))
-// 	req := new(updateRequest)
+	id, _ := strconv.Atoi(c.Param("id"))
+	req := new(request)
 
-// 	if err := c.Bind(req); err != nil {
-// 		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+	if err := c.Bind(req); err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
 
-// 		return c.JSON(http.StatusBadRequest, response)
-// 	}
+		return c.JSON(http.StatusBadRequest, response)
+	}
 
-// 	if err := c.Validate(req); err != nil {
-// 		// TODO error-formater -> error-request-formatter
-// 		errorFormatter := helper.ErrorFormatter(err)
-// 		errorMessage := helper.M{"fail": errorFormatter}
-// 		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+	if err := c.Validate(req); err != nil {
+		errorFormatter := helper.ErrorFormatter(err)
+		errorMessage := helper.M{"fail": errorFormatter}
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
 
-// 		return c.JSON(http.StatusBadRequest, response)
-// 	}
+		return c.JSON(http.StatusBadRequest, response)
+	}
 
-// 	response, _ := h.userServices.UpdateUser(uint(id), req)
-// 	return c.JSON(http.StatusOK, response)
-// }
+	editedUser, err := h.userServices.EditUser(uint(id), req)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", err.Error(), nil)
+		return c.JSON(http.StatusBadRequest, response)
+	}
 
-// func (h *userHandler) DeleteUser(c echo.Context) error {
-// 	accessToken := c.Get("user").(*jwt.Token)
-// 	claims := accessToken.Claims.(jwt.MapClaims)
-// 	role := claims["user_role"]
+	// TODO updated-formatter
+	userData := editedUser
 
-// 	if role != "admin" {
-// 		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
-// 		return c.JSON(http.StatusUnauthorized, response)
-// 	}
+	response := helper.ResponseFormatter(http.StatusOK, "success", "user successfully updated", userData)
+	return c.JSON(http.StatusOK, response)
+}
 
-// 	id, _ := strconv.Atoi(c.Param("id"))
-// 	if err := h.userServices.DeleteUser(uint(id)); err != nil {
-// 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err, nil)
-// 		return c.JSON(http.StatusOK, response)
-// 	}
-// 	message := fmt.Sprintf("user %d was deleted", id)
-// 	response := helper.ResponseFormatter(http.StatusOK, "success", message, nil)
-// 	return c.JSON(http.StatusOK, response)
-// }
+func (h *userHandler) DeleteUser(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
+
+	if role != "admin" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	if err := h.userServices.RemoveUser(uint(id)); err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err, nil)
+		return c.JSON(http.StatusOK, response)
+	}
+	message := fmt.Sprintf("user %d was deleted", id)
+	response := helper.ResponseFormatter(http.StatusOK, "success", message, nil)
+	return c.JSON(http.StatusOK, response)
+}
