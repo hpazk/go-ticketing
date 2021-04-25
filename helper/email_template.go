@@ -1,8 +1,6 @@
 package helper
 
-import (
-	"github.com/hpazk/go-booklib/database/model"
-)
+import "github.com/hpazk/go-ticketing/database/model"
 
 func PaymentOrderTemplate(event model.Event) string {
 	emailBody := ""

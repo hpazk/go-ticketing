@@ -3,22 +3,10 @@ package user
 import (
 	"net/http"
 
-	"github.com/hpazk/go-booklib/auth"
-	"github.com/hpazk/go-booklib/helper"
+	"github.com/hpazk/go-ticketing/auth"
+	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
 )
-
-// TODO 1: payload validator: OK
-// TODO 2: existEmail validatator
-// TODO 3: createUser service: OK
-// TODO 3: authToken service: OK
-// TODO 4: response formatter: OK
-// TODO 5: api response formatter: OK
-// TODO 6: error handling and error-response formatter: OK
-// TODO 7: emailVerification service
-// TODO 8: userHandler: OK
-// TODO 9: handler login
-// TODO 10: handler logout
 
 type userHandler struct {
 	userServices UserServices
@@ -77,7 +65,6 @@ func (h *userHandler) PostUserRegistration(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-// TODO check exist-email
 func (h *userHandler) PostUserLogin(c echo.Context) error {
 	req := new(loginRequest)
 
@@ -103,7 +90,6 @@ func (h *userHandler) PostUserLogin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	// TODO auth-token
 	authToken, err := h.authServices.GetAccessToken(signedInUser.ID, signedInUser.Role, signedInUser.Email)
 	if err != nil {
 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "something went wrong", nil)

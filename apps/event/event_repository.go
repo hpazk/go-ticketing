@@ -3,9 +3,9 @@ package event
 import (
 	"fmt"
 
-	"github.com/hpazk/go-booklib/apps/report"
-	"github.com/hpazk/go-booklib/database"
-	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-ticketing/apps/report"
+	"github.com/hpazk/go-ticketing/database"
+	"github.com/hpazk/go-ticketing/database/model"
 	"gorm.io/gorm"
 )
 

@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/hpazk/go-booklib/apps"
-	"github.com/hpazk/go-booklib/helper"
+	"github.com/hpazk/go-ticketing/apps"
+	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

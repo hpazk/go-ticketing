@@ -2,9 +2,8 @@ package user
 
 import (
 	"errors"
-	"time"
 
-	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-ticketing/database/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,7 +22,8 @@ type services struct {
 	repo repository
 }
 
-func UserService(repo repository) *services {
+func UserService() *services {
+	repo := UserRepository()
 	return &services{repo}
 }
 
@@ -33,9 +33,6 @@ func (s *services) signUp(req *request) (model.User, error) {
 	userReg.Fullname = req.Fullname
 	userReg.Email = req.Email
 	userReg.Password = req.Password
-	userReg.Role = "member"
-	userReg.CreatedAt = time.Now()
-	userReg.UpdatedAt = time.Now()
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -52,7 +49,6 @@ func (s *services) signUp(req *request) (model.User, error) {
 	return newUser, nil
 }
 
-// TODO user-login
 func (s *services) signIn(req *loginRequest) (model.User, error) {
 	email := req.Email
 	password := req.Password

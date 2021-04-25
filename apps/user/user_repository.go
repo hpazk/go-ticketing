@@ -1,7 +1,8 @@
 package user
 
 import (
-	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-ticketing/database"
+	"github.com/hpazk/go-ticketing/database/model"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +19,8 @@ type repo struct {
 	db *gorm.DB
 }
 
-func userRepository(db *gorm.DB) *repo {
+func UserRepository() *repo {
+	db := database.GetDbInstance()
 	return &repo{db}
 }
 

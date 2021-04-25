@@ -3,8 +3,8 @@ package transaction
 import (
 	"fmt"
 
-	"github.com/hpazk/go-booklib/database"
-	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-ticketing/database"
+	"github.com/hpazk/go-ticketing/database/model"
 	"gorm.io/gorm"
 )
 

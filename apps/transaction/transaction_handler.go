@@ -10,9 +10,10 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/hpazk/go-booklib/auth"
-	"github.com/hpazk/go-booklib/cache"
-	"github.com/hpazk/go-booklib/helper"
+	"github.com/hpazk/go-ticketing/auth"
+	"github.com/hpazk/go-ticketing/cache"
+	"github.com/hpazk/go-ticketing/helper"
+
 	"github.com/labstack/echo/v4"
 )
 

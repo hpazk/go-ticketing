@@ -1,9 +1,9 @@
 package transaction
 
 import (
-	"github.com/hpazk/go-booklib/apps/event"
-	"github.com/hpazk/go-booklib/database/model"
-	"github.com/hpazk/go-booklib/helper"
+	"github.com/hpazk/go-ticketing/apps/event"
+	"github.com/hpazk/go-ticketing/database/model"
+	"github.com/hpazk/go-ticketing/helper"
 )
 
 type Services interface {

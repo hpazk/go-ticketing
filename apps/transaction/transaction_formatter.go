@@ -1,6 +1,6 @@
 package transaction
 
-import "github.com/hpazk/go-booklib/database/model"
+import "github.com/hpazk/go-ticketing/database/model"
 
 type request struct {
 	EventID uint    `json:"event_id" validate:"required"`

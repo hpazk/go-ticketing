@@ -3,7 +3,7 @@ package user
 import (
 	"time"
 
-	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-ticketing/database/model"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +12,6 @@ type request struct {
 	Username string `json:"username" validate:"required"`
 	Fullname string `json:"fullname" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
-	Role     string `json:"role" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
 

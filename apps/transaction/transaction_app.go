@@ -1,8 +1,8 @@
 package transaction
 
 import (
-	"github.com/hpazk/go-booklib/auth"
-	"github.com/hpazk/go-booklib/helper"
+	"github.com/hpazk/go-ticketing/auth"
+	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
 )
 

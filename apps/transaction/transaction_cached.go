@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/hpazk/go-booklib/cache"
-	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-ticketing/cache"
+	"github.com/hpazk/go-ticketing/database/model"
 	"github.com/labstack/echo/v4"
 )
 

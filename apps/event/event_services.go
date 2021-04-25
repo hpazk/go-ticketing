@@ -1,8 +1,8 @@
 package event
 
 import (
-	"github.com/hpazk/go-booklib/apps/report"
-	"github.com/hpazk/go-booklib/database/model"
+	"github.com/hpazk/go-ticketing/apps/report"
+	"github.com/hpazk/go-ticketing/database/model"
 )
 
 type Services interface {

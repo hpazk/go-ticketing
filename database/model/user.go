@@ -11,7 +11,7 @@ type User struct {
 	Fullname    string
 	Email       string
 	Password    string
-	Role        string        `gorm:"type:enum('admin', 'participant', 'creator');"`
+	Role        string        `sql:"type:ENUM('admin', 'participant', 'creator'); default:'participant'"`
 	Event       []Event       `gorm:"foreignKey:CreatorID"`
 	Transaction []Transaction `gorm:"foreignKey:ParticipantID"`
 }

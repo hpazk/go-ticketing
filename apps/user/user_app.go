@@ -1,36 +1,24 @@
 package user
 
 import (
-	"github.com/hpazk/go-booklib/auth"
-	"github.com/hpazk/go-booklib/helper"
+	"github.com/hpazk/go-ticketing/auth"
+	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 type App struct {
-	Db *gorm.DB
-}
-
-func Init(db *gorm.DB) *App {
-	return &App{db}
 }
 
 var handler *userHandler
 
 func (a *App) UseApp() {
-	repository := userRepository(a.Db)
-	userservice := UserService(repository)
+	userservice := UserService()
 	authService := auth.AuthService()
 
 	handler = UserHandler(userservice, authService)
 }
 
 func (a *App) Route() []helper.Route {
-
-	// TODO jwt: OK
-	// TODO jwt: custom-error
-	// TODO token-validation
-
 	return []helper.Route{
 		{
 			Method:  echo.POST,
