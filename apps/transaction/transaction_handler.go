@@ -3,10 +3,13 @@ package transaction
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/hpazk/go-booklib/auth"
 	"github.com/hpazk/go-booklib/cache"
 	"github.com/hpazk/go-booklib/helper"
@@ -58,7 +61,6 @@ func (h *handler) GetTransactions(c echo.Context) error {
 	tsxsJson, _ := json.Marshal(tsxsFormed)
 
 	jsonString := string(tsxsJson)
-	fmt.Println(jsonString)
 
 	rd.Set("tsx", jsonString, time.Hour*1)
 
@@ -85,4 +87,55 @@ func (h *handler) GetTransactionsByEvent(c echo.Context) error {
 	transactions, _ := h.services.FetchTransactionsByEvent(uint(eventId))
 
 	return c.JSON(http.StatusOK, transactions)
+}
+
+// Upload Photo Handler
+func (h *handler) PostPaymentConfirmation(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	id := uint(claims["user_id"].(float64))
+	// role := claims["user_role"]
+
+	// TODO image-validation
+
+	// Source
+	image, err := c.FormFile("image")
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	src, err := image.Open()
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+	defer src.Close()
+
+	imagePath := fmt.Sprintf("public/images/%d-%s", id, image.Filename)
+
+	// Destination
+	dst, err := os.Create(imagePath)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+	defer dst.Close()
+
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+
+	// Upload
+	_, err = h.services.UploadPaymentOrder(id, imagePath)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+
+	response := helper.ResponseFormatter(http.StatusOK, "success", "image succesfully uploaded", helper.M{"is_uploaded": true})
+
+	return c.JSON(http.StatusOK, response)
 }

@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"github.com/hpazk/go-booklib/apps/event"
 	"github.com/hpazk/go-booklib/database/model"
 	"github.com/hpazk/go-booklib/helper"
 )
@@ -9,7 +10,7 @@ type Services interface {
 	SaveTransaction(req *request) (model.Transaction, error)
 	FetchTransactions() ([]model.Transaction, error)
 	FetchTransaction(id uint) (model.Transaction, error)
-	EditTransaction(id uint) (model.Transaction, error)
+	UploadPaymentOrder(id uint, imagePath string) (model.Transaction, error)
 	RemoveTransaction(id uint) error
 	FetchTransactionsByEvent(id uint) ([]model.Transaction, error)
 }
@@ -18,7 +19,8 @@ type services struct {
 	repo repository
 }
 
-func transactionService(repo repository) *services {
+func TransactionService() *services {
+	repo := TransactionRepository()
 	return &services{repo}
 }
 
@@ -36,7 +38,13 @@ func (s *services) SaveTransaction(req *request) (model.Transaction, error) {
 		return savedTransaction, nil
 	}
 
-	emailBody := helper.PaymentOrderTemplate(savedTransaction)
+	eventService := event.EventService()
+	orderedEvent, err := eventService.FetchEvent(savedTransaction.EventID)
+	if err != nil {
+		return savedTransaction, nil
+	}
+
+	emailBody := helper.PaymentOrderTemplate(orderedEvent)
 	helper.SendEmail(participantEmail, "Webinar Payment Order", emailBody)
 
 	return savedTransaction, nil
@@ -52,9 +60,16 @@ func (s *services) FetchTransaction(id uint) (model.Transaction, error) {
 	return tsx, nil
 }
 
-func (s *services) EditTransaction(id uint) (model.Transaction, error) {
-	var tsx model.Transaction
-	return tsx, nil
+func (s *services) UploadPaymentOrder(id uint, imagePath string) (model.Transaction, error) {
+	var transaction model.Transaction
+	transaction.ID = id
+	transaction.ImagePath = imagePath
+	editedTransaction, err := s.repo.Update(transaction)
+	if err != nil {
+		return editedTransaction, nil
+	}
+
+	return transaction, nil
 }
 
 func (s *services) RemoveTransaction(id uint) error {

@@ -28,8 +28,9 @@ func AppInit(e *echo.Echo) {
 
 	// Apps
 	userApp := user.Init(db)
-	tsxApp := transaction.Init(db)
 	userApp.UseApp()
+
+	tsxApp := transaction.App{}
 	tsxApp.UseApp()
 
 	eventApp := event.App{}

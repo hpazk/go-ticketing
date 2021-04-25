@@ -18,7 +18,7 @@ type services struct {
 	repo repository
 }
 
-func eventService() *services {
+func EventService() *services {
 	repo := EventRepository()
 	return &services{repo}
 }

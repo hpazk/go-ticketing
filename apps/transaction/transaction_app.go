@@ -4,22 +4,15 @@ import (
 	"github.com/hpazk/go-booklib/auth"
 	"github.com/hpazk/go-booklib/helper"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 type App struct {
-	Db *gorm.DB
-}
-
-func Init(db *gorm.DB) *App {
-	return &App{db}
 }
 
 var handlers *handler
 
 func (a *App) UseApp() {
-	repo := transactionRepository(a.Db)
-	service := transactionService(repo)
+	service := TransactionService()
 	authService := auth.AuthService()
 
 	handlers = transactionHandler(service, authService)
@@ -35,10 +28,10 @@ func (a *App) Route() []helper.Route {
 			// Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
 		{
-			Method:     echo.GET,
-			Path:       "/transactions/checkout",
-			Handler:    handlers.GetTransactions,
-			Middleware: []echo.MiddlewareFunc{handlers.GetTransactionsCached},
+			Method:  echo.GET,
+			Path:    "/transactions",
+			Handler: handlers.GetTransactions,
+			// Middleware: []echo.MiddlewareFunc{handlers.GetTransactionsCached},
 		},
 		{
 			Method:  echo.GET,

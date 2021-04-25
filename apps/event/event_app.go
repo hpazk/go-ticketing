@@ -12,7 +12,8 @@ type App struct {
 var handlers *handler
 
 func (a *App) UseApp() {
-	service := eventService()
+
+	service := EventService()
 	authService := auth.AuthService()
 
 	handlers = eventHandler(service, authService)
