@@ -159,7 +159,7 @@ func (h *userHandler) GetUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func (h *userHandler) PutUser(c echo.Context) error {
+func (h *userHandler) PatchUser(c echo.Context) error {
 	accessToken := c.Get("user").(*jwt.Token)
 	claims := accessToken.Claims.(jwt.MapClaims)
 	role := claims["user_role"]

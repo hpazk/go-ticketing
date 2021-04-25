@@ -9,7 +9,7 @@ type Services interface {
 	SaveEvent(req *request) (model.Event, error)
 	FetchEvents() ([]model.Event, error)
 	FetchEvent(id uint) (model.Event, error)
-	EditEvent(id uint, req *request) (model.Event, error)
+	EditEvent(id uint, req *updateRequest) (model.Event, error)
 	RemoveEvent(id uint) error
 	FetchEventReport(creatorID uint, eventID uint) (report.EventReport, error)
 }
@@ -63,9 +63,12 @@ func (s *services) FetchEvent(id uint) (model.Event, error) {
 	return event, nil
 }
 
-func (s *services) EditEvent(id uint, req *request) (model.Event, error) {
-	var event model.Event
-	event.ID = id
+func (s *services) EditEvent(id uint, req *updateRequest) (model.Event, error) {
+	event, err := s.repo.FindById(id)
+	if err != nil {
+		return event, nil
+	}
+
 	event.CreatorID = req.CreatorID
 	event.TitleEvent = req.TitleEvent
 	event.LinkWebinar = req.LinkWebinar

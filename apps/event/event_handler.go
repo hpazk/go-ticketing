@@ -1,9 +1,11 @@
 package event
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/hpazk/go-ticketing/auth"
 	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
@@ -19,6 +21,14 @@ func eventHandler(services Services, authServices auth.AuthServices) *handler {
 }
 
 func (h *handler) PostEvent(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
+
+	if role != "admin" && role != "creator" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
 	req := new(request)
 
 	// Check request
@@ -57,11 +67,64 @@ func (h *handler) GetEvent(c echo.Context) error {
 }
 
 func (h *handler) PutEvent(c echo.Context) error {
-	return c.JSON(http.StatusOK, helper.M{"message": "put-event"})
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
+
+	if role != "admin" && role != "creator" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	req := new(updateRequest)
+
+	if err := c.Bind(req); err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	if err := c.Validate(req); err != nil {
+		errorFormatter := helper.ErrorFormatter(err)
+		errorMessage := helper.M{"fail": errorFormatter}
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	editedUser, err := h.services.EditEvent(uint(id), req)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", err.Error(), nil)
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	// TODO updated-formatter
+	userData := editedUser
+
+	response := helper.ResponseFormatter(http.StatusOK, "success", "event successfully updated", userData)
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *handler) DeleteEvent(c echo.Context) error {
-	return c.JSON(http.StatusOK, helper.M{"message": "delete-event"})
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
+
+	if role != "admin" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	if err := h.services.RemoveEvent(uint(id)); err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err, nil)
+		return c.JSON(http.StatusOK, response)
+	}
+
+	message := fmt.Sprintf("event %d was deleted", id)
+	response := helper.ResponseFormatter(http.StatusOK, "success", message, nil)
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *handler) GetEventReport(c echo.Context) error {

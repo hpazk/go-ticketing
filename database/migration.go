@@ -9,9 +9,9 @@ import (
 func GetMigrations(db *gorm.DB) *gormigrate.Gormigrate {
 	return gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "1619328226",
+			ID: "1619333364",
 			Migrate: func(tx *gorm.DB) error {
-				return tx.AutoMigrate(&model.User{})
+				return tx.AutoMigrate(&model.Event{})
 			},
 		},
 	})

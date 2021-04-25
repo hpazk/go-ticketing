@@ -9,6 +9,6 @@ type Transaction struct {
 	ParticipantID uint
 	EventID       uint
 	ImagePath     string
-	StatusPayment string `sql:"type:ENUM('passed', 'failed'); default:'failed'"`
+	StatusPayment string `sql:"type:ENUM('passed', 'failed')" gorm:"default:failed"`
 	Amount        float64
 }

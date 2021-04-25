@@ -45,7 +45,7 @@ func (a *App) Route() []helper.Route {
 		{
 			Method:     echo.PATCH,
 			Path:       "/users/:id",
-			Handler:    handler.PutUser,
+			Handler:    handler.PatchUser,
 			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
 		{
