@@ -12,6 +12,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hpazk/go-ticketing/auth"
 	"github.com/hpazk/go-ticketing/cache"
+	"github.com/hpazk/go-ticketing/database/model"
 	"github.com/hpazk/go-ticketing/helper"
 
 	"github.com/labstack/echo/v4"
@@ -45,7 +46,13 @@ func (h *handler) PostTransaction(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	newTransaction, err := h.services.SaveTransaction(req)
+	var participant model.User
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	participant.ID = uint(claims["user_id"].(float64))
+	participant.Email = claims["user_email"].(string)
+
+	newTransaction, err := h.services.SaveTransaction(req, participant)
 	if err != nil {
 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, response)
@@ -55,6 +62,15 @@ func (h *handler) PostTransaction(c echo.Context) error {
 }
 
 func (h *handler) GetTransactions(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
+
+	if role != "admin" && role != "creator" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
+
 	rd := cache.GetRedisInstance()
 	tsxs, _ := h.services.FetchTransactions()
 
@@ -69,11 +85,56 @@ func (h *handler) GetTransactions(c echo.Context) error {
 }
 
 func (h *handler) GetTransaction(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
+
+	if role != "admin" && role != "creator" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
+
 	return c.JSON(http.StatusOK, helper.M{"message": "get-transaction"})
 }
 
-func (h *handler) PutTransaction(c echo.Context) error {
-	return c.JSON(http.StatusOK, helper.M{"message": "put-transaction"})
+func (h *handler) PatchTransaction(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	role := claims["user_role"]
+
+	if role != "admin" && role != "creator" {
+		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		return c.JSON(http.StatusUnauthorized, response)
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	req := new(updateRequest)
+
+	if err := c.Bind(req); err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	if err := c.Validate(req); err != nil {
+		errorFormatter := helper.ErrorFormatter(err)
+		errorMessage := helper.M{"fail": errorFormatter}
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	confirmedPayment, err := h.services.EditTransaction(uint(id), req)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", err.Error(), nil)
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	// TODO updated-formatter
+	transactionData := confirmedPayment
+
+	response := helper.ResponseFormatter(http.StatusOK, "success", "transaction successfully updated", transactionData)
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *handler) DeleteTransaction(c echo.Context) error {
@@ -94,10 +155,8 @@ func (h *handler) GetTransactionsByEvent(c echo.Context) error {
 func (h *handler) PostPaymentConfirmation(c echo.Context) error {
 	accessToken := c.Get("user").(*jwt.Token)
 	claims := accessToken.Claims.(jwt.MapClaims)
-	id := uint(claims["user_id"].(float64))
+	participanID := uint(claims["user_id"].(float64))
 	// role := claims["user_role"]
-
-	// TODO image-validation
 
 	// Source
 	image, err := c.FormFile("image")
@@ -113,7 +172,7 @@ func (h *handler) PostPaymentConfirmation(c echo.Context) error {
 	}
 	defer src.Close()
 
-	imagePath := fmt.Sprintf("public/images/%d-%s", id, image.Filename)
+	imagePath := fmt.Sprintf("public/%d-%s", participanID, image.Filename)
 
 	// Destination
 	dst, err := os.Create(imagePath)
@@ -130,7 +189,7 @@ func (h *handler) PostPaymentConfirmation(c echo.Context) error {
 	}
 
 	// Upload
-	_, err = h.services.UploadPaymentOrder(id, imagePath)
+	_, err = h.services.UploadPaymentOrder(participanID, imagePath)
 	if err != nil {
 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
 		return c.JSON(http.StatusInternalServerError, response)

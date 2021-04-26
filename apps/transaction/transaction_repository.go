@@ -15,6 +15,7 @@ type repository interface {
 	Update(tsx model.Transaction) (model.Transaction, error)
 	Delete(id uint) error
 	FindByEventID(eventID uint) ([]model.Transaction, error)
+	FindByParticipant(participanID uint) (model.Transaction, error)
 }
 
 type repo struct {
@@ -47,7 +48,17 @@ func (r *repo) Fetch() ([]model.Transaction, error) {
 
 func (r *repo) FindById(id uint) (model.Transaction, error) {
 	var tsx model.Transaction
-	err := r.db.Find(&tsx).Error
+	err := r.db.Where("id = ?", id).First(&tsx).Error
+	if err != nil {
+		return tsx, err
+	}
+
+	return tsx, nil
+}
+
+func (r *repo) FindByParticipant(participanID uint) (model.Transaction, error) {
+	var tsx model.Transaction
+	err := r.db.Where("participant_id = ?", participanID).First(&tsx).Error
 	if err != nil {
 		return tsx, err
 	}

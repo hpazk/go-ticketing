@@ -7,6 +7,10 @@ type request struct {
 	Amount  float64 `json:"amount"`
 }
 
+type updateRequest struct {
+	StatusPayment string `json:"status_payment" validate:"required"`
+}
+
 type response struct {
 	ID            uint    `json:"id"`
 	ParticipantID uint    `json:"participan_id"`

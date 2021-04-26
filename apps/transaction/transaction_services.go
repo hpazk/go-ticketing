@@ -7,10 +7,11 @@ import (
 )
 
 type Services interface {
-	SaveTransaction(req *request) (model.Transaction, error)
+	SaveTransaction(req *request, participant model.User) (model.Transaction, error)
 	FetchTransactions() ([]model.Transaction, error)
 	FetchTransaction(id uint) (model.Transaction, error)
-	UploadPaymentOrder(id uint, imagePath string) (model.Transaction, error)
+	EditTransaction(id uint, req *updateRequest) (model.Transaction, error)
+	UploadPaymentOrder(participanID uint, imagePath string) (model.Transaction, error)
 	RemoveTransaction(id uint) error
 	FetchTransactionsByEvent(id uint) ([]model.Transaction, error)
 }
@@ -24,14 +25,13 @@ func TransactionService() *services {
 	return &services{repo}
 }
 
-func (s *services) SaveTransaction(req *request) (model.Transaction, error) {
+func (s *services) SaveTransaction(req *request, participant model.User) (model.Transaction, error) {
 	// TODO jwt: id, email
-	var id uint = 1
-	var participantEmail string = "email@email.com"
 
 	var transaction model.Transaction
 	transaction.EventID = req.EventID
-	transaction.ParticipantID = id
+	transaction.ParticipantID = participant.ID
+	transaction.Amount = req.Amount
 
 	savedTransaction, err := s.repo.Store(transaction)
 	if err != nil {
@@ -45,7 +45,7 @@ func (s *services) SaveTransaction(req *request) (model.Transaction, error) {
 	}
 
 	emailBody := helper.PaymentOrderTemplate(orderedEvent)
-	helper.SendEmail(participantEmail, "Webinar Payment Order", emailBody)
+	helper.SendEmail(participant.Email, "Webinar Payment Order", emailBody)
 
 	return savedTransaction, nil
 }
@@ -55,14 +55,32 @@ func (s *services) FetchTransactions() ([]model.Transaction, error) {
 	return tsxs, nil
 }
 
+func (s *services) EditTransaction(id uint, req *updateRequest) (model.Transaction, error) {
+	transaction, err := s.repo.FindById(id)
+	if err != nil {
+		return transaction, nil
+	}
+
+	transaction.StatusPayment = req.StatusPayment
+	editedTransaction, err := s.repo.Update(transaction)
+	if err != nil {
+		return editedTransaction, nil
+	}
+
+	return transaction, nil
+}
+
 func (s *services) FetchTransaction(id uint) (model.Transaction, error) {
 	var tsx model.Transaction
 	return tsx, nil
 }
 
-func (s *services) UploadPaymentOrder(id uint, imagePath string) (model.Transaction, error) {
-	var transaction model.Transaction
-	transaction.ID = id
+func (s *services) UploadPaymentOrder(participanID uint, imagePath string) (model.Transaction, error) {
+	transaction, err := s.repo.FindByParticipant(participanID)
+	if err != nil {
+		return transaction, nil
+	}
+
 	transaction.ImagePath = imagePath
 	editedTransaction, err := s.repo.Update(transaction)
 	if err != nil {
