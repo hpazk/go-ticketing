@@ -54,15 +54,15 @@ func (a *App) Route() []helper.Route {
 		},
 		{
 			Method:     echo.GET,
-			Path:       "/events/:id/participant",
+			Path:       "/events/participant",
 			Handler:    handlers.DeleteEvent,
 			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
 		},
-		{
-			Method:     echo.GET,
-			Path:       "/events/:id/report",
-			Handler:    handlers.GetEventReport,
-			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
-		},
+		// {
+		// 	Method:     echo.GET,
+		// 	Path:       "/events/:id/report",
+		// 	Handler:    handlers.GetEventReport,
+		// 	Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
+		// },
 	}
 }

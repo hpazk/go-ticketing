@@ -1,20 +1,18 @@
 package report
 
-type ReportResult struct {
-	Email         string
-	EventID       int
-	TransactionID int
+type Report struct {
 	TitleEvent    string
-	Amount        float64
+	Email         string
+	Fullname      string
+	StatusPayment string
+}
+type EventParticipants struct {
+	ParticipantEmail    string `json:"participan_email"`
+	ParticipantFullname string `json:"participan_fullname"`
+	StatusPayment       string `json:"status_payment"`
 }
 
 type EventReport struct {
-	TitleEvent       string
-	TotalParticipant int
-	Participants     []Participants
-	TotalAmount      float64
-}
-
-type Participants struct {
-	Email string
+	TitleEvent   string              `json:"title_event"`
+	Participants []EventParticipants `json:"participants"`
 }

@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"github.com/hpazk/go-ticketing/apps/event"
+	"github.com/hpazk/go-ticketing/apps/user"
 	"github.com/hpazk/go-ticketing/database/model"
 	"github.com/hpazk/go-ticketing/helper"
 )
@@ -26,8 +27,6 @@ func TransactionService() *services {
 }
 
 func (s *services) SaveTransaction(req *request, participant model.User) (model.Transaction, error) {
-	// TODO jwt: id, email
-
 	var transaction model.Transaction
 	transaction.EventID = req.EventID
 	transaction.ParticipantID = participant.ID
@@ -44,7 +43,7 @@ func (s *services) SaveTransaction(req *request, participant model.User) (model.
 		return savedTransaction, nil
 	}
 
-	emailBody := helper.PaymentOrderTemplate(orderedEvent)
+	emailBody := helper.InvoiceTemplate(orderedEvent)
 	helper.SendEmail(participant.Email, "Webinar Payment Order", emailBody)
 
 	return savedTransaction, nil
@@ -66,6 +65,21 @@ func (s *services) EditTransaction(id uint, req *updateRequest) (model.Transacti
 	if err != nil {
 		return editedTransaction, nil
 	}
+
+	eventService := event.EventService()
+	orderedEvent, err := eventService.FetchEvent(transaction.EventID)
+	if err != nil {
+		return transaction, nil
+	}
+
+	userService := user.UserService()
+	participant, err := userService.FetchUserById(transaction.ParticipantID)
+	if err != nil {
+		return editedTransaction, nil
+	}
+
+	emailBody := helper.PaymentSuccessLayout(orderedEvent)
+	helper.SendEmail(participant.Email, "Webinar Detil", emailBody)
 
 	return transaction, nil
 }

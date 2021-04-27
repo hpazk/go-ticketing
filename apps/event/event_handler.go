@@ -126,10 +126,3 @@ func (h *handler) DeleteEvent(c echo.Context) error {
 	response := helper.ResponseFormatter(http.StatusOK, "success", message, nil)
 	return c.JSON(http.StatusOK, response)
 }
-
-func (h *handler) GetEventReport(c echo.Context) error {
-	// TODO creator-id
-	eventID, _ := strconv.Atoi(c.Param("id"))
-	report, _ := h.services.FetchEventReport(1, uint(eventID))
-	return c.JSON(http.StatusOK, report)
-}
