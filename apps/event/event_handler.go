@@ -7,6 +7,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hpazk/go-ticketing/auth"
+	"github.com/hpazk/go-ticketing/cache"
 	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
 )
@@ -59,6 +60,11 @@ func (h *handler) PostEvent(c echo.Context) error {
 func (h *handler) GetEvents(c echo.Context) error {
 	events, _ := h.services.FetchEvents()
 	response := events
+	rd := cache.GetRedisInstance()
+	eventCached := rd.Get("get-events")
+	if eventCached == nil {
+		return c.JSON(http.StatusOK, response)
+	}
 	return c.JSON(http.StatusOK, response)
 }
 

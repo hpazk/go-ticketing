@@ -4,11 +4,13 @@ import (
 	"fmt"
 
 	"github.com/hpazk/go-ticketing/database"
+	"github.com/hpazk/go-ticketing/database/model"
 	"gorm.io/gorm"
 )
 
 type repository interface {
-	FetchTransactionReport(creatorID uint, statusPayment string) ([]Report, error)
+	FetchReport(creatorID, eventID uint) ([]Report, error)
+	// Fetch(creatorID uint) ([]model.User, error)
 }
 
 type repo struct {
@@ -20,22 +22,39 @@ func ReportRepository() *repo {
 	return &repo{db}
 }
 
-func (r *repo) FetchTransactionReport(creatorID uint, statusPayment string) ([]Report, error) {
+func (r *repo) FetchReport(creatorID, eventID uint) ([]Report, error) {
 	var report []Report
+
 	q := fmt.Sprintf(`SELECT users.fullname,
     users.email,
     events.title_event,
-	transactions.status_payment
+	events.description,
+	events.link_webinar,
+	events.price,
+	transactions.status_payment,
+	transactions.amount
 	FROM transactions
     JOIN events ON transactions.event_id = events.id
     JOIN users ON transactions.participant_id = users.id
 	WHERE events.creator_id = %d
-    AND transactions.status_payment = '%s';`, creatorID, statusPayment)
+	AND events.id = %d
+    AND transactions.status_payment = 'passed';`, creatorID, eventID)
 
 	err := r.db.Raw(q).Scan(&report).Error
 	if err != nil {
 		return report, err
 	}
 
+	fmt.Println(report)
 	return report, nil
+}
+
+func (r *repo) Fetch() ([]model.User, error) {
+	users := []model.User{}
+	err := r.db.Preload("Transaction").Preload("Event").Find(&users).Error
+	if err != nil {
+		return users, err
+	}
+
+	return users, nil
 }

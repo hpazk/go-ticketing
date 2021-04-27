@@ -7,6 +7,7 @@ type Report struct {
 	Email         string
 	Fullname      string
 	StatusPayment string
+	Amount        float64
 }
 type EventParticipants struct {
 	ParticipantEmail    string `json:"participan_email"`
@@ -15,6 +16,13 @@ type EventParticipants struct {
 }
 
 type EventReport struct {
-	TitleEvent   string              `json:"title_event"`
+	WebinarDetil WebinarDetil        `json:"webinar_detil"`
+	TotalAmount  float64             `json:"total_amount"`
 	Participants []EventParticipants `json:"participants"`
+}
+
+type WebinarDetil struct {
+	TitleEvent  string
+	Description string
+	LinkWebinar string
 }

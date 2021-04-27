@@ -28,17 +28,18 @@ func TransactionService() *services {
 
 func (s *services) SaveTransaction(req *request, participant model.User) (model.Transaction, error) {
 	var transaction model.Transaction
-	transaction.EventID = req.EventID
-	transaction.ParticipantID = participant.ID
-	transaction.Amount = req.Amount
+	eventService := event.EventService()
 
-	savedTransaction, err := s.repo.Store(transaction)
+	orderedEvent, err := eventService.FetchEvent(req.EventID)
 	if err != nil {
-		return savedTransaction, nil
+		return transaction, nil
 	}
 
-	eventService := event.EventService()
-	orderedEvent, err := eventService.FetchEvent(savedTransaction.EventID)
+	transaction.EventID = req.EventID
+	transaction.ParticipantID = participant.ID
+	transaction.Amount = orderedEvent.Price
+
+	savedTransaction, err := s.repo.Store(transaction)
 	if err != nil {
 		return savedTransaction, nil
 	}

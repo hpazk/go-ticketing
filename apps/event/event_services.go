@@ -1,6 +1,10 @@
 package event
 
 import (
+	"encoding/json"
+	"time"
+
+	"github.com/hpazk/go-ticketing/cache"
 	"github.com/hpazk/go-ticketing/database/model"
 )
 
@@ -46,6 +50,11 @@ func (s *services) SaveEvent(req *request) (model.Event, error) {
 
 func (s *services) FetchEvents() ([]model.Event, error) {
 	events, err := s.repo.Fetch()
+
+	rd := cache.GetRedisInstance()
+	eventString, _ := json.Marshal(events)
+	rd.Set("get-events", eventString, time.Hour*3)
+
 	if err != nil {
 		return events, nil
 	}
