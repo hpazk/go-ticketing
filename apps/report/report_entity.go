@@ -2,6 +2,8 @@ package report
 
 type Report struct {
 	TitleEvent    string
+	Description   string
+	LinkWebinar   string
 	Email         string
 	Fullname      string
 	StatusPayment string

@@ -3,6 +3,7 @@ package transaction
 import (
 	"fmt"
 
+	"github.com/hpazk/go-ticketing/apps/report"
 	"github.com/hpazk/go-ticketing/database"
 	"github.com/hpazk/go-ticketing/database/model"
 	"gorm.io/gorm"
@@ -16,6 +17,7 @@ type repository interface {
 	Delete(id uint) error
 	FindByEventID(eventID uint) ([]model.Transaction, error)
 	FindByParticipant(participanID uint) (model.Transaction, error)
+	FindDetil(transactionID uint) (report.Report, error)
 }
 
 type repo struct {
@@ -91,6 +93,27 @@ func (r *repo) FindByEventID(eventID uint) ([]model.Transaction, error) {
 	// TODO WHERE transactions.status_payment = %s
 	query := fmt.Sprintf("SELECT * FROM transactions JOIN users ON transactions.participant_id = users.id WHERE transactions.event_id = %d AND transactions.status_payment='passed';", eventID)
 	err := r.db.Raw(query).Scan(&transactions).Error
+	if err != nil {
+		return transactions, err
+	}
+
+	return transactions, nil
+}
+func (r *repo) FindDetil(transactionID uint) (report.Report, error) {
+	var transactions report.Report
+
+	q := fmt.Sprintf(`SELECT users.fullname,
+    users.email,
+    events.id,
+    events.title_event,
+    events.description,
+    events.link_webinar
+	FROM users
+	JOIN transactions ON users.id = transactions.participant_id
+	JOIN events ON transactions.event_id = events.id
+	WHERE transactions.id = %d;`, transactionID)
+
+	err := r.db.Raw(q).Scan(&transactions).Error
 	if err != nil {
 		return transactions, err
 	}

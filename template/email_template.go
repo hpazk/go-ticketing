@@ -1,8 +1,9 @@
-package helper
+package template
 
 import (
 	"fmt"
 
+	"github.com/hpazk/go-ticketing/apps/report"
 	"github.com/hpazk/go-ticketing/database/model"
 )
 
@@ -31,7 +32,7 @@ func InvoiceTemplate(event model.Event) string {
 	return emailBody
 }
 
-func PaymentSuccessLayout(event model.Event) string {
+func PaymentSuccessLayout(event report.Report) string {
 	emailBody := fmt.Sprintf(`
 	<h2>Webinar Detail</h2>
 		<table border="1">
