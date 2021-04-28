@@ -13,7 +13,7 @@ type repository interface {
 	Store(tsx model.Transaction) (model.Transaction, error)
 	Fetch() ([]model.Transaction, error)
 	FindById(id uint) (model.Transaction, error)
-	Update(tsx model.Transaction) (model.Transaction, error)
+	Update(tsx model.Transaction) error
 	Delete(id uint) error
 	FindByEventID(eventID uint) ([]model.Transaction, error)
 	FindByParticipant(participanID uint) (model.Transaction, error)
@@ -68,13 +68,13 @@ func (r *repo) FindByParticipant(participanID uint) (model.Transaction, error) {
 	return tsx, nil
 }
 
-func (r *repo) Update(transaction model.Transaction) (model.Transaction, error) {
+func (r *repo) Update(transaction model.Transaction) error {
 	err := r.db.Save(&transaction).Error
 	if err != nil {
-		return transaction, err
+		return err
 	}
 
-	return transaction, nil
+	return nil
 }
 
 func (r *repo) Delete(id uint) error {

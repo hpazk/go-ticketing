@@ -7,10 +7,10 @@ import (
 )
 
 type repository interface {
-	Store(event model.Event) (model.Event, error)
+	Store(event model.Event) error
 	Fetch() ([]model.Event, error)
 	FindById(id uint) (model.Event, error)
-	Update(event model.Event) (model.Event, error)
+	Update(event model.Event) error
 	Delete(id uint) error
 }
 
@@ -23,13 +23,13 @@ func EventRepository() *repo {
 	return &repo{db}
 }
 
-func (r *repo) Store(event model.Event) (model.Event, error) {
+func (r *repo) Store(event model.Event) error {
 	err := r.db.Create(&event).Error
 	if err != nil {
-		return event, err
+		return err
 	}
 
-	return event, nil
+	return nil
 }
 
 func (r *repo) Fetch() ([]model.Event, error) {
@@ -52,13 +52,13 @@ func (r *repo) FindById(id uint) (model.Event, error) {
 	return event, nil
 }
 
-func (r *repo) Update(event model.Event) (model.Event, error) {
+func (r *repo) Update(event model.Event) error {
 	err := r.db.Save(&event).Error
 	if err != nil {
-		return event, err
+		return err
 	}
 
-	return event, nil
+	return nil
 }
 
 func (r *repo) Delete(id uint) error {

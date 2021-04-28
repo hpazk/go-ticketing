@@ -46,11 +46,11 @@ func SendEmail(recipient, subject string, body string) bool {
 		c.Password,
 	)
 
-	err := dialer.DialAndSend(mailer)
-	if err != nil {
-		log.Fatal(err.Error())
-		return false
-	}
+	go dialer.DialAndSend(mailer)
+	// if err != nil {
+	// 	log.Fatal(err.Error())
+	// 	return false
+	// }
 
 	log.Println("Mail sent!")
 	return true

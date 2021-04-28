@@ -127,7 +127,7 @@ func (h *userHandler) GetUsers(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusNotFound, helper.M{"message": err.Error()})
 		} else {
-			response := user
+			response := userBasicResponseFormatter(user)
 			return c.JSON(http.StatusOK, response)
 		}
 	}
@@ -138,7 +138,7 @@ func (h *userHandler) GetUsers(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response)
 	}
 
-	usersData := users
+	usersData := usersBasicResponseFormatter(users)
 
 	response := helper.ResponseFormatter(http.StatusOK, "success", "all user successfully fetched", usersData)
 	return c.JSON(http.StatusOK, response)
@@ -192,8 +192,7 @@ func (h *userHandler) PatchUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	// TODO updated-formatter
-	userData := editedUser
+	userData := userBasicResponseFormatter(editedUser)
 
 	response := helper.ResponseFormatter(http.StatusOK, "success", "user successfully updated", userData)
 	return c.JSON(http.StatusOK, response)
@@ -205,16 +204,16 @@ func (h *userHandler) DeleteUser(c echo.Context) error {
 	role := claims["user_role"]
 
 	if role != "admin" {
-		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		response := helper.ResponseFormatterWD(http.StatusUnauthorized, "fail", "Please provide valid credentials")
 		return c.JSON(http.StatusUnauthorized, response)
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	if err := h.userServices.RemoveUser(uint(id)); err != nil {
-		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err, nil)
+		response := helper.ResponseFormatterWD(http.StatusInternalServerError, "fail", err)
 		return c.JSON(http.StatusOK, response)
 	}
 	message := fmt.Sprintf("user %d was deleted", id)
-	response := helper.ResponseFormatter(http.StatusOK, "success", message, nil)
+	response := helper.ResponseFormatterWD(http.StatusOK, "success", message)
 	return c.JSON(http.StatusOK, response)
 }

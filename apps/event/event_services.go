@@ -9,10 +9,10 @@ import (
 )
 
 type Services interface {
-	SaveEvent(req *request) (model.Event, error)
+	SaveEvent(req *request) error
 	FetchEvents() ([]model.Event, error)
 	FetchEvent(id uint) (model.Event, error)
-	EditEvent(id uint, req *updateRequest) (model.Event, error)
+	EditEvent(id uint, req *updateRequest) error
 	RemoveEvent(id uint) error
 }
 
@@ -25,7 +25,7 @@ func EventService() *services {
 	return &services{repo}
 }
 
-func (s *services) SaveEvent(req *request) (model.Event, error) {
+func (s *services) SaveEvent(req *request) error {
 	var event model.Event
 	event.CreatorID = req.CreatorID
 	event.TitleEvent = req.TitleEvent
@@ -40,20 +40,21 @@ func (s *services) SaveEvent(req *request) (model.Event, error) {
 	event.CampaignStartDate = req.CampaignStartDate
 	event.CampaignEndDate = req.CampaignEndDate
 
-	savedEvent, err := s.repo.Store(event)
+	err := s.repo.Store(event)
 	if err != nil {
-		return savedEvent, nil
+		return err
 	}
 
-	return savedEvent, nil
+	return nil
 }
 
 func (s *services) FetchEvents() ([]model.Event, error) {
 	events, err := s.repo.Fetch()
 
 	rd := cache.GetRedisInstance()
-	eventString, _ := json.Marshal(events)
-	rd.Set("get-events", eventString, time.Hour*3)
+	eventFormatted := eventsResponseFormatter(events)
+	eventString, _ := json.Marshal(eventFormatted)
+	rd.Set("get-events", eventString, time.Hour*2)
 
 	if err != nil {
 		return events, nil
@@ -70,10 +71,10 @@ func (s *services) FetchEvent(id uint) (model.Event, error) {
 	return event, nil
 }
 
-func (s *services) EditEvent(id uint, req *updateRequest) (model.Event, error) {
+func (s *services) EditEvent(id uint, req *updateRequest) error {
 	event, err := s.repo.FindById(id)
 	if err != nil {
-		return event, nil
+		return err
 	}
 
 	event.CreatorID = req.CreatorID
@@ -89,12 +90,12 @@ func (s *services) EditEvent(id uint, req *updateRequest) (model.Event, error) {
 	event.CampaignStartDate = req.CampaignStartDate
 	event.CampaignEndDate = req.CampaignEndDate
 
-	editedEvent, err := s.repo.Update(event)
+	err = s.repo.Update(event)
 
 	if err != nil {
-		return editedEvent, nil
+		return err
 	}
-	return editedEvent, nil
+	return nil
 }
 
 func (s *services) RemoveEvent(id uint) error {

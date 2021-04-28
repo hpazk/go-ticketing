@@ -9,6 +9,10 @@ type Response struct {
 	Data interface{} `json:"data"`
 }
 
+type ResponseWD struct {
+	Meta Meta `json:"meta"`
+}
+
 type Meta struct {
 	Code    int         `json:"code"`
 	Status  string      `json:"status"`
@@ -25,6 +29,20 @@ func ResponseFormatter(code int, status string, message interface{}, data interf
 	response := Response{
 		Meta: meta,
 		Data: data,
+	}
+
+	return response
+}
+
+func ResponseFormatterWD(code int, status string, message interface{}) ResponseWD {
+	meta := Meta{
+		Code:    code,
+		Status:  status,
+		Message: message,
+	}
+
+	response := ResponseWD{
+		Meta: meta,
 	}
 
 	return response

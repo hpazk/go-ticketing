@@ -32,7 +32,7 @@ func (h *handler) PostTransaction(c echo.Context) error {
 
 	// Check request
 	if err := c.Bind(req); err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", "invalid request")
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
@@ -41,7 +41,7 @@ func (h *handler) PostTransaction(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		errorFormatter := helper.ErrorFormatter(err)
 		errorMessage := helper.M{"errors": errorFormatter}
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", errorMessage)
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
@@ -54,11 +54,12 @@ func (h *handler) PostTransaction(c echo.Context) error {
 
 	newTransaction, err := h.services.SaveTransaction(req, participant)
 	if err != nil {
-		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err.Error(), nil)
+		response := helper.ResponseFormatterWD(http.StatusInternalServerError, "fail", err.Error())
 		return c.JSON(http.StatusInternalServerError, response)
 	}
-	transactionData := newTransaction
-	return c.JSON(http.StatusOK, transactionData)
+	transactionData := transactionFormatter(newTransaction)
+	response := helper.ResponseFormatter(http.StatusOK, "success", "chekout success", transactionData)
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *handler) GetTransactions(c echo.Context) error {
@@ -111,7 +112,7 @@ func (h *handler) PatchTransaction(c echo.Context) error {
 	req := new(updateRequest)
 
 	if err := c.Bind(req); err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", "invalid request")
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
@@ -119,21 +120,18 @@ func (h *handler) PatchTransaction(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		errorFormatter := helper.ErrorFormatter(err)
 		errorMessage := helper.M{"fail": errorFormatter}
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", errorMessage)
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	confirmedPayment, err := h.services.EditTransaction(uint(id), req)
+	err := h.services.EditTransaction(uint(id), req)
 	if err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", err.Error(), nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", err.Error())
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	// TODO updated-formatter
-	transactionData := confirmedPayment
-
-	response := helper.ResponseFormatter(http.StatusOK, "success", "transaction successfully updated", transactionData)
+	response := helper.ResponseFormatterWD(http.StatusOK, "success", "transaction successfully updated")
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -189,7 +187,7 @@ func (h *handler) PostPaymentConfirmation(c echo.Context) error {
 	}
 
 	// Upload
-	_, err = h.services.UploadPaymentOrder(participanID, imagePath)
+	err = h.services.UploadPaymentOrder(participanID, imagePath)
 	if err != nil {
 		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
 		return c.JSON(http.StatusInternalServerError, response)

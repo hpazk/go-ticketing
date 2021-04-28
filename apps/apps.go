@@ -40,4 +40,5 @@ func AppInit(e *echo.Echo) {
 	}
 
 	routes.DefineApiRoutes(e, handlers)
+	// go scheduler.Scheduler()
 }

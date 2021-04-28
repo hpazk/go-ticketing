@@ -11,8 +11,8 @@ type Services interface {
 	SaveTransaction(req *request, participant model.User) (model.Transaction, error)
 	FetchTransactions() ([]model.Transaction, error)
 	FetchTransaction(id uint) (model.Transaction, error)
-	EditTransaction(id uint, req *updateRequest) (model.Transaction, error)
-	UploadPaymentOrder(participanID uint, imagePath string) (model.Transaction, error)
+	EditTransaction(id uint, req *updateRequest) error
+	UploadPaymentOrder(participanID uint, imagePath string) error
 	RemoveTransaction(id uint) error
 	FetchTransactionsByEvent(id uint) ([]model.Transaction, error)
 }
@@ -37,7 +37,6 @@ func (s *services) SaveTransaction(req *request, participant model.User) (model.
 
 	transaction.EventID = req.EventID
 	transaction.ParticipantID = participant.ID
-	transaction.Amount = orderedEvent.Price
 
 	savedTransaction, err := s.repo.Store(transaction)
 	if err != nil {
@@ -45,7 +44,7 @@ func (s *services) SaveTransaction(req *request, participant model.User) (model.
 	}
 
 	emailBody := template.InvoiceTemplate(orderedEvent)
-	helper.SendEmail(participant.Email, "Webinar Payment Order", emailBody)
+	go helper.SendEmail(participant.Email, "Webinar Payment Order", emailBody)
 
 	return savedTransaction, nil
 }
@@ -55,27 +54,28 @@ func (s *services) FetchTransactions() ([]model.Transaction, error) {
 	return tsxs, nil
 }
 
-func (s *services) EditTransaction(id uint, req *updateRequest) (model.Transaction, error) {
+func (s *services) EditTransaction(id uint, req *updateRequest) error {
 	transaction, err := s.repo.FindById(id)
 	if err != nil {
-		return transaction, nil
+		return err
 	}
 
 	transaction.StatusPayment = req.StatusPayment
-	editedTransaction, err := s.repo.Update(transaction)
+	transaction.Amount = req.Amount
+	err = s.repo.Update(transaction)
 	if err != nil {
-		return editedTransaction, nil
+		return err
 	}
 
 	participant, err := s.repo.FindDetil(id)
 	if err != nil {
-		return editedTransaction, nil
+		return nil
 	}
 
 	emailBody := template.PaymentSuccessLayout(participant)
 	helper.SendEmail(participant.Email, "Webinar Detil", emailBody)
 
-	return transaction, nil
+	return nil
 }
 
 func (s *services) FetchTransaction(id uint) (model.Transaction, error) {
@@ -83,19 +83,19 @@ func (s *services) FetchTransaction(id uint) (model.Transaction, error) {
 	return tsx, nil
 }
 
-func (s *services) UploadPaymentOrder(participanID uint, imagePath string) (model.Transaction, error) {
+func (s *services) UploadPaymentOrder(participanID uint, imagePath string) error {
 	transaction, err := s.repo.FindByParticipant(participanID)
 	if err != nil {
-		return transaction, nil
+		return err
 	}
 
 	transaction.ImagePath = imagePath
-	editedTransaction, err := s.repo.Update(transaction)
+	err = s.repo.Update(transaction)
 	if err != nil {
-		return editedTransaction, nil
+		return err
 	}
 
-	return transaction, nil
+	return nil
 }
 
 func (s *services) RemoveTransaction(id uint) error {

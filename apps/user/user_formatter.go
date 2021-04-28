@@ -1,10 +1,7 @@
 package user
 
 import (
-	"time"
-
 	"github.com/hpazk/go-ticketing/database/model"
-	"gorm.io/gorm"
 )
 
 // Request
@@ -22,15 +19,12 @@ type loginRequest struct {
 
 // Response
 type response struct {
-	ID        uint           `json:"id"`
-	Username  string         `json:"username"`
-	Fullname  string         `json:"fullname"`
-	Email     string         `json:"email"`
-	Role      string         `json:"role"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
-	AuthToken string         `json:"auth_token"`
+	ID        uint   `json:"id"`
+	Username  string `json:"username"`
+	Fullname  string `json:"fullname"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
+	AuthToken string `json:"auth_token"`
 }
 
 type loginResponse struct {
@@ -38,7 +32,16 @@ type loginResponse struct {
 	Username  string `json:"username"`
 	Fullname  string `json:"fullname"`
 	Email     string `json:"email"`
+	Role      string `json:"role"`
 	AuthToken string `json:"auth_token"`
+}
+
+type basicRsponse struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Fullname string `json:"fullname"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
 }
 
 func userLoginResponseFormatter(user model.User, authToken string) loginResponse {
@@ -47,6 +50,7 @@ func userLoginResponseFormatter(user model.User, authToken string) loginResponse
 		Username:  user.Username,
 		Fullname:  user.Fullname,
 		Email:     user.Email,
+		Role:      user.Role,
 		AuthToken: authToken,
 	}
 
@@ -60,11 +64,30 @@ func userResponseFormatter(user model.User, authToken string) response {
 		Fullname:  user.Fullname,
 		Email:     user.Email,
 		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		DeletedAt: user.DeletedAt,
 		AuthToken: authToken,
 	}
 
+	return formatter
+}
+
+func userBasicResponseFormatter(user model.User) basicRsponse {
+	formatter := basicRsponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Fullname: user.Fullname,
+		Email:    user.Email,
+		Role:     user.Role,
+	}
+
+	return formatter
+}
+
+func usersBasicResponseFormatter(users []model.User) []basicRsponse {
+	formatter := []basicRsponse{}
+
+	for _, user := range users {
+		c := userBasicResponseFormatter(user)
+		formatter = append(formatter, c)
+	}
 	return formatter
 }

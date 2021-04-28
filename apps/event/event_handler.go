@@ -7,7 +7,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hpazk/go-ticketing/auth"
-	"github.com/hpazk/go-ticketing/cache"
 	"github.com/hpazk/go-ticketing/helper"
 	"github.com/labstack/echo/v4"
 )
@@ -27,14 +26,14 @@ func (h *handler) PostEvent(c echo.Context) error {
 	role := claims["user_role"]
 
 	if role != "admin" && role != "creator" {
-		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		response := helper.ResponseFormatterWD(http.StatusUnauthorized, "fail", "Please provide valid credentials")
 		return c.JSON(http.StatusUnauthorized, response)
 	}
 	req := new(request)
 
 	// Check request
 	if err := c.Bind(req); err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", "invalid request")
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
@@ -43,28 +42,28 @@ func (h *handler) PostEvent(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		errorFormatter := helper.ErrorFormatter(err)
 		errorMessage := helper.M{"errors": errorFormatter}
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", errorMessage)
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	newEvent, err := h.services.SaveEvent(req)
+	err := h.services.SaveEvent(req)
 	if err != nil {
-		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err.Error(), nil)
+		response := helper.ResponseFormatterWD(http.StatusInternalServerError, "fail", err.Error())
 		return c.JSON(http.StatusInternalServerError, response)
 	}
-	eventData := newEvent
-	return c.JSON(http.StatusOK, eventData)
+	response := helper.ResponseFormatterWD(http.StatusOK, "success", "event successfully drafted")
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *handler) GetEvents(c echo.Context) error {
-	events, _ := h.services.FetchEvents()
-	response := events
-	rd := cache.GetRedisInstance()
-	eventCached := rd.Get("get-events")
-	if eventCached == nil {
-		return c.JSON(http.StatusOK, response)
+	events, err := h.services.FetchEvents()
+	if err != nil {
+		response := helper.ResponseFormatterWD(http.StatusInternalServerError, "fail", err.Error())
+		return c.JSON(http.StatusInternalServerError, response)
 	}
+
+	response := eventsResponseFormatter(events)
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -78,7 +77,7 @@ func (h *handler) PutEvent(c echo.Context) error {
 	role := claims["user_role"]
 
 	if role != "admin" && role != "creator" {
-		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		response := helper.ResponseFormatterWD(http.StatusUnauthorized, "fail", "Please provide valid credentials")
 		return c.JSON(http.StatusUnauthorized, response)
 	}
 
@@ -86,7 +85,7 @@ func (h *handler) PutEvent(c echo.Context) error {
 	req := new(updateRequest)
 
 	if err := c.Bind(req); err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", "invalid request")
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
@@ -94,21 +93,18 @@ func (h *handler) PutEvent(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		errorFormatter := helper.ErrorFormatter(err)
 		errorMessage := helper.M{"fail": errorFormatter}
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", errorMessage)
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	editedUser, err := h.services.EditEvent(uint(id), req)
+	err := h.services.EditEvent(uint(id), req)
 	if err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", err.Error(), nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", err.Error())
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	// TODO updated-formatter
-	userData := editedUser
-
-	response := helper.ResponseFormatter(http.StatusOK, "success", "event successfully updated", userData)
+	response := helper.ResponseFormatterWD(http.StatusOK, "success", "event successfully updated")
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -118,17 +114,17 @@ func (h *handler) DeleteEvent(c echo.Context) error {
 	role := claims["user_role"]
 
 	if role != "admin" {
-		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		response := helper.ResponseFormatterWD(http.StatusUnauthorized, "fail", "Please provide valid credentials")
 		return c.JSON(http.StatusUnauthorized, response)
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	if err := h.services.RemoveEvent(uint(id)); err != nil {
-		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", err, nil)
+		response := helper.ResponseFormatterWD(http.StatusInternalServerError, "fail", err)
 		return c.JSON(http.StatusOK, response)
 	}
 
 	message := fmt.Sprintf("event %d was deleted", id)
-	response := helper.ResponseFormatter(http.StatusOK, "success", message, nil)
+	response := helper.ResponseFormatterWD(http.StatusOK, "success", message)
 	return c.JSON(http.StatusOK, response)
 }

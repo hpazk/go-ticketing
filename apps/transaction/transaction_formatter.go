@@ -8,7 +8,8 @@ type request struct {
 }
 
 type updateRequest struct {
-	StatusPayment string `json:"status_payment" validate:"required"`
+	StatusPayment string  `json:"status_payment" validate:"required"`
+	Amount        float64 `json:"amount" validate:"required"`
 }
 
 type response struct {
@@ -20,7 +21,7 @@ type response struct {
 	Amount        float64 `json:"amount"`
 }
 
-func tsxFormatter(tsx model.Transaction) response {
+func transactionFormatter(tsx model.Transaction) response {
 	formatter := response{
 		ID:            tsx.ID,
 		ParticipantID: tsx.ParticipantID,
@@ -36,7 +37,7 @@ func tsxsFormatter(tsxs []model.Transaction) []response {
 	formatter := []response{}
 
 	for _, campaign := range tsxs {
-		c := tsxFormatter(campaign)
+		c := transactionFormatter(campaign)
 		formatter = append(formatter, c)
 	}
 	return formatter
