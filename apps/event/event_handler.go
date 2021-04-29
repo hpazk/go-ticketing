@@ -2,7 +2,9 @@ package event
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
@@ -126,5 +128,61 @@ func (h *handler) DeleteEvent(c echo.Context) error {
 
 	message := fmt.Sprintf("event %d was deleted", id)
 	response := helper.ResponseFormatterWD(http.StatusOK, "success", message)
+	return c.JSON(http.StatusOK, response)
+}
+
+func (h *handler) PatchEventBanner(c echo.Context) error {
+	accessToken := c.Get("user").(*jwt.Token)
+	claims := accessToken.Claims.(jwt.MapClaims)
+	// participanID := uint(claims["user_id"].(float64))
+	role := claims["user_role"]
+
+	if role != "admin" && role != "creator" {
+		response := helper.ResponseFormatterWD(http.StatusUnauthorized, "fail", "Please provide valid credentials")
+		return c.JSON(http.StatusUnauthorized, response)
+	}
+
+	paramEventID := c.Param("id")
+	eventID, _ := strconv.Atoi(paramEventID)
+
+	// Source
+	image, err := c.FormFile("banner")
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	src, err := image.Open()
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+	defer src.Close()
+
+	imagePath := fmt.Sprintf("public/banner/%d-%s", eventID, image.Filename)
+
+	// Destination
+	dst, err := os.Create(imagePath)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+	defer dst.Close()
+
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+
+	// Upload
+	err = h.services.UploadBanner(uint(eventID), imagePath)
+	if err != nil {
+		response := helper.ResponseFormatter(http.StatusInternalServerError, "fail", "file upload failed", helper.M{"is_uploaded": false})
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+
+	response := helper.ResponseFormatter(http.StatusOK, "success", "image succesfully uploaded", helper.M{"is_uploaded": true})
+
 	return c.JSON(http.StatusOK, response)
 }

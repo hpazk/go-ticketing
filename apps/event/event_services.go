@@ -14,6 +14,7 @@ type Services interface {
 	FetchEvent(id uint) (model.Event, error)
 	EditEvent(id uint, req *updateRequest) error
 	RemoveEvent(id uint) error
+	UploadBanner(eventID uint, imagePath string) error
 }
 
 type services struct {
@@ -100,6 +101,21 @@ func (s *services) EditEvent(id uint, req *updateRequest) error {
 
 func (s *services) RemoveEvent(id uint) error {
 	err := s.repo.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *services) UploadBanner(eventID uint, imagePath string) error {
+	event, err := s.repo.FindById(eventID)
+	if err != nil {
+		return err
+	}
+
+	event.Banner = imagePath
+	err = s.repo.Update(event)
 	if err != nil {
 		return err
 	}
