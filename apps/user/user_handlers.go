@@ -165,15 +165,15 @@ func (h *userHandler) PatchUser(c echo.Context) error {
 	role := claims["user_role"]
 
 	if role != "admin" {
-		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
+		response := helper.ResponseFormatterWD(http.StatusUnauthorized, "fail", "Please provide valid credentials")
 		return c.JSON(http.StatusUnauthorized, response)
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	req := new(request)
+	req := new(updateRequest)
 
 	if err := c.Bind(req); err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", "invalid request", nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", "invalid request")
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
@@ -181,20 +181,18 @@ func (h *userHandler) PatchUser(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		errorFormatter := helper.ErrorFormatter(err)
 		errorMessage := helper.M{"fail": errorFormatter}
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", errorMessage, nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", errorMessage)
 
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	editedUser, err := h.userServices.EditUser(uint(id), req)
+	err := h.userServices.EditUser(uint(id), req)
 	if err != nil {
-		response := helper.ResponseFormatter(http.StatusBadRequest, "fail", err.Error(), nil)
+		response := helper.ResponseFormatterWD(http.StatusBadRequest, "fail", err.Error())
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	userData := userBasicResponseFormatter(editedUser)
-
-	response := helper.ResponseFormatter(http.StatusOK, "success", "user successfully updated", userData)
+	response := helper.ResponseFormatterWD(http.StatusOK, "success", "user successfully updated")
 	return c.JSON(http.StatusOK, response)
 }
 

@@ -52,13 +52,12 @@ func (h *handler) PostTransaction(c echo.Context) error {
 	participant.ID = uint(claims["user_id"].(float64))
 	participant.Email = claims["user_email"].(string)
 
-	newTransaction, err := h.services.SaveTransaction(req, participant)
+	err := h.services.SaveTransaction(req, participant)
 	if err != nil {
 		response := helper.ResponseFormatterWD(http.StatusInternalServerError, "fail", err.Error())
 		return c.JSON(http.StatusInternalServerError, response)
 	}
-	transactionData := transactionFormatter(newTransaction)
-	response := helper.ResponseFormatter(http.StatusOK, "success", "chekout success", transactionData)
+	response := helper.ResponseFormatterWD(http.StatusOK, "success", "checkout success")
 	return c.JSON(http.StatusOK, response)
 }
 

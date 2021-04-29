@@ -9,7 +9,7 @@ import (
 type repository interface {
 	Store(user model.User) (model.User, error)
 	Fetch() ([]model.User, error)
-	Update(user model.User) (model.User, error)
+	Update(user model.User) error
 	FindById(id uint) (model.User, error)
 	FindByEmail(email string) (model.User, error)
 	FindByRole(role string) (model.User, error)
@@ -83,13 +83,13 @@ func (r *repo) FindByRole(role string) (model.User, error) {
 }
 
 // Update user
-func (r *repo) Update(user model.User) (model.User, error) {
+func (r *repo) Update(user model.User) error {
 	err := r.db.Save(&user).Error
 	if err != nil {
-		return user, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
 // Delete User

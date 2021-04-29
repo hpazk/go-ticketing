@@ -10,7 +10,7 @@ import (
 )
 
 type repository interface {
-	Store(tsx model.Transaction) (model.Transaction, error)
+	Store(tsx model.Transaction) error
 	Fetch() ([]model.Transaction, error)
 	FindById(id uint) (model.Transaction, error)
 	Update(tsx model.Transaction) error
@@ -29,13 +29,13 @@ func TransactionRepository() *repo {
 	return &repo{db}
 }
 
-func (r *repo) Store(tsx model.Transaction) (model.Transaction, error) {
+func (r *repo) Store(tsx model.Transaction) error {
 	err := r.db.Create(&tsx).Error
 	if err != nil {
-		return tsx, err
+		return err
 	}
 
-	return tsx, nil
+	return nil
 }
 
 func (r *repo) Fetch() ([]model.Transaction, error) {

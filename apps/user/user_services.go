@@ -13,7 +13,7 @@ type UserServices interface {
 	FetchUsers() ([]model.User, error)
 	FetchUserById(id uint) (model.User, error)
 	FetchUserByRole(role string) (model.User, error)
-	EditUser(id uint, req *request) (model.User, error)
+	EditUser(id uint, req *updateRequest) error
 	RemoveUser(id uint) error
 	CheckExistEmail(email string) bool
 	NewCreator(req *request) (model.User, error)
@@ -104,22 +104,22 @@ func (s *services) FetchUserByRole(role string) (model.User, error) {
 	return user, nil
 }
 
-func (s *services) EditUser(id uint, req *request) (model.User, error) {
+func (s *services) EditUser(id uint, req *updateRequest) error {
 	user, err := s.repo.FindById(id)
 	if err != nil {
-		return user, err
+		return err
 	}
 
 	user.Username = req.Username
 	user.Fullname = req.Fullname
 	user.Email = req.Email
 
-	editedUser, err := s.repo.Update(user)
+	err = s.repo.Update(user)
 	if err != nil {
-		return editedUser, err
+		return err
 	}
 
-	return editedUser, nil
+	return nil
 }
 
 func (s *services) RemoveUser(id uint) error {

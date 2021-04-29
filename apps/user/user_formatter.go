@@ -17,6 +17,12 @@ type loginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type updateRequest struct {
+	Username string `json:"username" validate:"required"`
+	Fullname string `json:"fullname" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+}
+
 // Response
 type response struct {
 	ID        uint   `json:"id"`

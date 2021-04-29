@@ -8,7 +8,7 @@ import (
 )
 
 type Services interface {
-	SaveTransaction(req *request, participant model.User) (model.Transaction, error)
+	SaveTransaction(req *request, participant model.User) error
 	FetchTransactions() ([]model.Transaction, error)
 	FetchTransaction(id uint) (model.Transaction, error)
 	EditTransaction(id uint, req *updateRequest) error
@@ -26,27 +26,27 @@ func TransactionService() *services {
 	return &services{repo}
 }
 
-func (s *services) SaveTransaction(req *request, participant model.User) (model.Transaction, error) {
+func (s *services) SaveTransaction(req *request, participant model.User) error {
 	var transaction model.Transaction
 	eventService := event.EventService()
 
 	orderedEvent, err := eventService.FetchEvent(req.EventID)
 	if err != nil {
-		return transaction, nil
+		return err
 	}
 
 	transaction.EventID = req.EventID
 	transaction.ParticipantID = participant.ID
 
-	savedTransaction, err := s.repo.Store(transaction)
+	err = s.repo.Store(transaction)
 	if err != nil {
-		return savedTransaction, nil
+		return err
 	}
 
 	emailBody := template.InvoiceTemplate(orderedEvent)
 	go helper.SendEmail(participant.Email, "Webinar Payment Order", emailBody)
 
-	return savedTransaction, nil
+	return nil
 }
 
 func (s *services) FetchTransactions() ([]model.Transaction, error) {
