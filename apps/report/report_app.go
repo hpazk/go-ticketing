@@ -24,12 +24,6 @@ func (a *App) Route() []helper.Route {
 	return []helper.Route{
 		{
 			Method:     echo.GET,
-			Path:       "/report/participant",
-			Handler:    handlers.GetReports,
-			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},
-		},
-		{
-			Method:     echo.GET,
 			Path:       "/reports/events/:id",
 			Handler:    handlers.GetReports,
 			Middleware: []echo.MiddlewareFunc{auth.JwtMiddleWare()},

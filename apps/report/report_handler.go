@@ -32,25 +32,9 @@ func (h *handler) GetReports(c echo.Context) error {
 
 	paramEventID := c.Param("id")
 	eventID, _ := strconv.Atoi(paramEventID)
+	statusPayment := c.QueryParam("status_payment")
 
-	users, _ := h.services.FetchReport(creatorID, uint(eventID))
+	users, _ := h.services.FetchReport(creatorID, uint(eventID), statusPayment)
 
 	return c.JSON(http.StatusOK, users)
 }
-
-// func (h *handler) GetEventParticipant(c echo.Context) error {
-// 	accessToken := c.Get("user").(*jwt.Token)
-// 	claims := accessToken.Claims.(jwt.MapClaims)
-// 	creatorID := uint(claims["user_id"].(float64))
-// 	role := claims["user_role"]
-
-// 	if role != "creator" {
-// 		response := helper.ResponseFormatter(http.StatusUnauthorized, "fail", "Please provide valid credentials", nil)
-// 		return c.JSON(http.StatusUnauthorized, response)
-// 	}
-
-// 	statusPayment := c.QueryParam("status_payment")
-
-// 	report, _ := h.services.FetchEventReport(creatorID, statusPayment)
-// 	return c.JSON(http.StatusOK, report)
-// }

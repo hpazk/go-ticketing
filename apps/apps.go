@@ -7,6 +7,7 @@ import (
 	"github.com/hpazk/go-ticketing/apps/user"
 	"github.com/hpazk/go-ticketing/helper"
 	"github.com/hpazk/go-ticketing/routes"
+	"github.com/hpazk/go-ticketing/scheduler"
 	"github.com/labstack/echo/v4"
 )
 
@@ -40,5 +41,5 @@ func AppInit(e *echo.Echo) {
 	}
 
 	routes.DefineApiRoutes(e, handlers)
-	// go scheduler.Scheduler()
+	go scheduler.Scheduler()
 }

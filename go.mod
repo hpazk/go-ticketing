@@ -7,14 +7,11 @@ require (
 	github.com/go-gormigrate/gormigrate/v2 v2.0.0
 	github.com/go-playground/validator/v10 v10.5.0
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/gocraft/work v0.5.1 // indirect
-	github.com/gomodule/redigo v1.8.4 // indirect
 	github.com/jasonlvhit/gocron v0.0.1
 	github.com/labstack/echo/v4 v4.2.2
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/onsi/ginkgo v1.16.1 // indirect
 	github.com/onsi/gomega v1.11.0 // indirect
-	github.com/robfig/cron v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/sys v0.0.0-20210415045647-66c3f260301c // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

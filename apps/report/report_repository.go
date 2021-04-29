@@ -4,13 +4,11 @@ import (
 	"fmt"
 
 	"github.com/hpazk/go-ticketing/database"
-	"github.com/hpazk/go-ticketing/database/model"
 	"gorm.io/gorm"
 )
 
 type repository interface {
-	FetchReport(creatorID, eventID uint) ([]Report, error)
-	// Fetch(creatorID uint) ([]model.User, error)
+	FetchReport(creatorID, eventID uint, statusPayment string) ([]Report, error)
 }
 
 type repo struct {
@@ -22,7 +20,7 @@ func ReportRepository() *repo {
 	return &repo{db}
 }
 
-func (r *repo) FetchReport(creatorID, eventID uint) ([]Report, error) {
+func (r *repo) FetchReport(creatorID, eventID uint, statusPayment string) ([]Report, error) {
 	var report []Report
 
 	q := fmt.Sprintf(`SELECT users.fullname,
@@ -38,23 +36,12 @@ func (r *repo) FetchReport(creatorID, eventID uint) ([]Report, error) {
     JOIN users ON transactions.participant_id = users.id
 	WHERE events.creator_id = %d
 	AND events.id = %d
-    AND transactions.status_payment = 'passed';`, creatorID, eventID)
+    AND transactions.status_payment = '%s';`, creatorID, eventID, statusPayment)
 
 	err := r.db.Raw(q).Scan(&report).Error
 	if err != nil {
 		return report, err
 	}
 
-	fmt.Println(report)
 	return report, nil
-}
-
-func (r *repo) Fetch() ([]model.User, error) {
-	users := []model.User{}
-	err := r.db.Preload("Transaction").Preload("Event").Find(&users).Error
-	if err != nil {
-		return users, err
-	}
-
-	return users, nil
 }

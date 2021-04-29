@@ -8,23 +8,38 @@ import (
 	"github.com/jasonlvhit/gocron"
 )
 
-func task() {
-	userService := user.UserService()
-	users, _ := userService.FetchUsers()
-	for _, u := range users {
-		helper.SendEmail(u.Email, "Subject", "tes")
-	}
+func PaymentNotification() {
+
 }
 
-// func taskWithParams(a int, b string) {
-// 	fmt.Println(a, b)
-// }
+func SendPromotion() {
+	// queue := list.New()
+
+	userService := user.UserService()
+	usersList, _ := userService.FetchUsers()
+
+	messages := make(chan string, 2)
+
+	go func() {
+		for {
+			i := <-messages
+
+			helper.SendEmail(i, "Test", "test test tes")
+			fmt.Println("receive data", i)
+		}
+	}()
+
+	for _, u := range usersList {
+		messages <- u.Email
+	}
+
+}
 
 func Scheduler() {
 	s := gocron.NewScheduler()
 	//s.Every(1).Second().Do(taskWithParams, 1, "hello")
-	// err := s.Every(1).Seconds().Do(task)
-	err := s.Every(1).Day().At("06:00").Do(task)
+	// err := s.Every(1).Seconds().Do(SendPromotion)
+	err := s.Every(1).Day().At("06:00").Do(SendPromotion)
 	if err != nil {
 		fmt.Println(err)
 	}
